@@ -4,7 +4,7 @@ A Vercel-ready Next.js application for Ferrowork, a 3D printing company. The sha
 
 ## Current status
 
-Deployed at **https://ferrowork.vercel.app**. Goldeneye uses Ferrowork login/SSO, Auth0 email/password accounts and PostgreSQL. Auth0 public signup remains disabled; reusable signup links submit inactive accounts for admin/manager review. Existing admin-created accounts continue to work.
+Goldeneye: **https://goldeneye.ferroworks.org** · FerroAI: **https://ferroai.ferroworks.org** · Printer Lab: **https://printerlab.ferroworks.org**. All three use Ferrowork login/SSO, Auth0 email/password accounts and PostgreSQL. Auth0 public signup remains disabled; reusable signup links submit inactive accounts for admin/manager review. Existing admin-created accounts continue to work.
 
 See [ENDPOINTS.md](./ENDPOINTS.md) for the complete API route list and a role-based security testing checklist.
 
