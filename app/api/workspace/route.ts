@@ -6,6 +6,7 @@ import {db,management} from '../../../lib/server';
 import {operationSchemas} from '../../../lib/operation-schemas';
 import {jobCost} from '../../../lib/operations.mjs';
 import {can,cents} from '../../../lib/policy.mjs';
+import {isTrustedOrigin} from '../../../lib/trusted-origins.mjs';
 export const dynamic='force-dynamic';
 const roles=z.enum(['admin','manager','member','finance','viewer']);
 const text=z.string().trim().min(1).max(200);
@@ -27,7 +28,7 @@ export async function GET(){try{const u=await identity();const records=await db(
  if(['admin','manager'].includes(u.role)){result.users=await db()`SELECT u.id,u.email,u.name,u.role,u.active,u.onboarding_completed,u.invited_at FROM fw_users u WHERE NOT EXISTS (SELECT 1 FROM fw_join_requests r WHERE r.user_id=u.id AND r.status IN ('Pending','Denied')) ORDER BY u.name`;}if(u.role==='admin')result.audit=await db()`SELECT * FROM fw_audit ORDER BY id DESC LIMIT 100`;
  return NextResponse.json(result,{headers:{'Cache-Control':'no-store'}});}catch(e){return failure(e);}}
 export async function POST(req:NextRequest){try{
- const expected=process.env.APP_BASE_URL; if(!expected || req.headers.get('origin')!==new URL(expected).origin) return NextResponse.json({error:'Invalid request origin'},{status:403});
+ if(!isTrustedOrigin(req.headers.get('origin'))) return NextResponse.json({error:'Invalid request origin'},{status:403});
  const u=await identity();const input=z.object({kind:z.enum(['projects','tasks','transactions','links','users','filament','jobs','quotes','orders','allocations','bom','changes','firmware','test_runs','issues']),action:z.enum(['create','update','delete','convert','invite','onboard','consume']),id:z.string().max(200).optional(),data:z.record(z.string(),z.unknown()).default({})}).parse(await req.json());
  const {kind,action,id}=input;if(action==='onboard'){if(kind!=='users'||id!==u.id)throw new Error('FORBIDDEN');await db()`UPDATE fw_users SET onboarding_completed=true WHERE id=${u.id}`;return NextResponse.json({ok:true});}if(!can(u.role,kind,true))throw new Error('FORBIDDEN'); if(action!=='create'&&!id)throw new Error('Invalid record ID');
  if(kind==='users'){

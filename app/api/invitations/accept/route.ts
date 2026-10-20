@@ -5,6 +5,7 @@ import {db,management} from '../../../../lib/server';
 import {tokenHash,usableInvite} from '../../../../lib/invitations.mjs';
 import {registerPending} from '../../../../lib/signup.mjs';
 import {acceptanceSchema} from '../../../../lib/invitation-validation.mjs';
+import {isTrustedOrigin} from '../../../../lib/trusted-origins.mjs';
 export const dynamic='force-dynamic';
 const json=(data:unknown,status=200)=>NextResponse.json(data,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
 const maxBodyBytes=16_384;
@@ -21,7 +22,7 @@ async function limitSignupRequests(req:NextRequest){
  await db().begin(async sql=>{await sql`SELECT pg_advisory_xact_lock(749186)`;const [attempts]=await sql`SELECT count(*)::int AS n FROM fw_signup_attempts WHERE fingerprint=${fingerprint} AND created_at>now()-interval '1 hour'`;if(attempts.n>=20)throw new Error('RATE_LIMIT');await sql`INSERT INTO fw_signup_attempts(fingerprint) VALUES (${fingerprint})`;});
 }
 export async function POST(req:NextRequest){try{
- if(!process.env.APP_BASE_URL||req.headers.get('origin')!==new URL(process.env.APP_BASE_URL).origin)return json({error:'Invalid origin'},403);
+ if(!isTrustedOrigin(req.headers.get('origin')))return json({error:'Invalid origin'},403);
  if(!req.headers.get('content-type')?.toLowerCase().startsWith('application/json'))return json({error:'Send a JSON request.'},415);
  const declaredSize=Number(req.headers.get('content-length')||0);if(declaredSize>maxBodyBytes)return json({error:'Request is too large.'},413);
  const raw=await readLimitedBody(req);

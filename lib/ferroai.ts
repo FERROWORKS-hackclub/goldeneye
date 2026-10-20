@@ -3,6 +3,7 @@ import {auth,configured} from './auth';
 import {db} from './server';
 import {defaultSettings,ferroModels} from './ferroai-models.mjs';
 import {z} from 'zod';
+import {isTrustedOrigin} from './trusted-origins.mjs';
 
 export class FerroError extends Error{constructor(message:string,public status=400){super(message)}}
 export async function ferroIdentity(){
@@ -21,4 +22,4 @@ export function encryptKey(value:string){const nonce=randomBytes(12),cipher=crea
 export function providerKey(cipher:string|null){if(cipher){const data=Buffer.from(cipher,'base64'),decipher=createDecipheriv('aes-256-gcm',secret(),data.subarray(0,12));decipher.setAuthTag(data.subarray(12,28));return Buffer.concat([decipher.update(data.subarray(28)),decipher.final()]).toString('utf8')}return process.env.HC_AI_API_KEY||''}
 export async function countsFor(id:string){const [row]=await db()`SELECT count(*) FILTER (WHERE created_at >= date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC')::int AS daily,count(*) FILTER (WHERE created_at>now()-interval '1 minute')::int AS minute FROM fw_ai_requests WHERE user_id=${id} AND created_at>now()-interval '1 day'`;return row}
 export function ferroFailure(error:unknown,extra:Record<string,unknown>={}){const invalid=error instanceof z.ZodError||error instanceof SyntaxError,status=error instanceof FerroError?error.status:invalid?400:503;return Response.json({error:error instanceof FerroError?error.message:invalid?'Invalid FerroAI request. Check your settings and input.':'FerroAI is temporarily unavailable. Please try again.',...extra},{status,headers:{'Cache-Control':'no-store'}})}
-export function checkOrigin(request:Request){const base=process.env.APP_BASE_URL;if(!base||request.headers.get('origin')!==new URL(base).origin)throw new FerroError('Invalid request origin.',403)}
+export function checkOrigin(request:Request){if(!isTrustedOrigin(request.headers.get('origin')))throw new FerroError('Invalid request origin.',403)}
