@@ -23,7 +23,7 @@ export const auth = betterAuth({
   emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, 'Verify your Ferrowork account', url) },
   trustedOrigins: [
     'https://goldeneye.ferroworks.org', 'https://ferroai.ferroworks.org', 'https://printerlab.ferroworks.org',
-    'https://auth.ferroworks.org', 'goldeneye://', 'exp://',
+    'https://auth.ferroworks.org', 'http://127.0.0.1:3000', 'goldeneye://', 'exp://',
   ],
   plugins: [
     admin(), organization(), expo(), jwt(),

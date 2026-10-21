@@ -36,9 +36,9 @@ Requirements: Node.js 22+, PostgreSQL, a Purelymail mailbox for transactional ma
    - `https://goldeneye.ferroworks.org/api/login/callback/ferrowork`
    - `https://ferroai.ferroworks.org/api/login/callback/ferrowork`
    - `https://printerlab.ferroworks.org/api/login/callback/ferrowork`
-   - `http://localhost:3000/api/login/callback/ferrowork`
+   - `http://127.0.0.1:3000/api/login/callback/ferrowork`
 
-Use a separate OIDC client for every external tool. Keep dynamic client registration disabled. Mark only controlled internal clients as trusted and skip consent only after their callback URLs have been verified. Password reset and setup emails use Purelymail SMTP (`smtp.purelymail.com`, port 465 with TLS). Signup remains admin-controlled.
+Use a separate OIDC client for every external tool. Keep dynamic client registration disabled. Mark only controlled internal clients as trusted and skip consent only after their callback URLs have been verified. Local development should use `127.0.0.1` (not `localhost`) in both the browser URL and callback. Password reset and setup emails use Purelymail SMTP (`smtp.purelymail.com`, port 465 with TLS). Signup remains admin-controlled.
 
 Run Goldeneye with `npm run dev`; start the native app with `npm run mobile`. `npx expo run:ios` requires Xcode. `npx expo run:android` requires Android Studio and the Android SDK. Check [Expo’s build guide](https://docs.expo.dev/build/introduction/) to configure signing and store submissions.
 
