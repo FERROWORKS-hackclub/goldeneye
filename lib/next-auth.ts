@@ -11,6 +11,8 @@ export const { handlers, auth: webSession, signIn, signOut } = NextAuth({
   providers: [{
     id: 'ferrowork', name: 'Ferrowork', type: 'oidc', issuer: `${authHost}/api/auth`,
     clientId, clientSecret, checks: ['pkce', 'state'],
+    // Validate the ID token, then load email/name from the OIDC user-info endpoint.
+    idToken: false,
     authorization: { params: { scope: 'openid profile email offline_access' } },
   }],
   session: { strategy: 'jwt' },
