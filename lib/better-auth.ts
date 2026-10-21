@@ -19,7 +19,14 @@ export const auth = betterAuth({
   basePath: '/api/auth',
   secret: process.env.BETTER_AUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'local-development-only-change-this-secret-32-chars'),
   database: getPool(),
-  emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 12, maxPasswordLength: 128, sendResetPassword: async ({ user, url }) => sendIdentityEmail(user.email, 'Reset your Ferrowork password', url) },
+  emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 12, maxPasswordLength: 128, sendResetPassword: async ({ user, url }) => {
+    const callbackURL = new URL(url).searchParams.get('callbackURL') || '/reset-password';
+    const migrationNotice = new URL(callbackURL, authUrl).searchParams.get('campaign') === 'auth0-migration';
+    const note = migrationNotice
+      ? "We've migrated away from Auth0 to our own Ferrowork identity service. Due to incompatibilities with the previous provider, your old password could not be transferred. Please use the secure link below to set a new password."
+      : undefined;
+    await sendIdentityEmail(user.email, migrationNotice ? 'Action required: set your Ferrowork password' : 'Reset your Ferrowork password', url, note);
+  } },
   emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, 'Verify your Ferrowork account', url) },
   trustedOrigins: [
     'https://goldeneye.ferroworks.org', 'https://ferroai.ferroworks.org', 'https://printerlab.ferroworks.org',
@@ -36,7 +43,7 @@ export const auth = betterAuth({
 });
 export const identityAuth = auth;
 
-async function sendIdentityEmail(to: string, subject: string, url: string) {
+async function sendIdentityEmail(to: string, subject: string, url: string, note?: string) {
   const { SMTP_HOST, SMTP_USER, SMTP_PASSWORD, IDENTITY_EMAIL_FROM } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASSWORD || !IDENTITY_EMAIL_FROM) throw new Error('Identity email is not configured.');
   const port = Number(process.env.SMTP_PORT || '465');
@@ -53,7 +60,7 @@ async function sendIdentityEmail(to: string, subject: string, url: string) {
     from: IDENTITY_EMAIL_FROM,
     to,
     subject,
-    text: `${subject}\n\nContinue securely: ${url}\n\nIf you did not request this, ignore this message.`,
-    html: `<p>${subject}</p><p><a href="${url}">Continue securely</a></p><p>If you did not request this, ignore this message.</p>`,
+    text: `${subject}\n\n${note ? `${note}\n\n` : ''}Continue securely: ${url}\n\nIf you did not request this, ignore this message.`,
+    html: `<p>${subject}</p>${note ? `<p>${note}</p>` : ''}<p><a href="${url}">Continue securely</a></p><p>If you did not request this, ignore this message.</p>`,
   });
 }

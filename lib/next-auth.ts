@@ -6,6 +6,7 @@ const clientSecret = process.env.FERROWORK_OIDC_CLIENT_SECRET || 'not-configured
 
 export const { handlers, auth: webSession, signIn, signOut } = NextAuth({
   trustHost: true,
+  basePath: '/api/login',
   secret: process.env.NEXTAUTH_SECRET || process.env.BETTER_AUTH_SECRET,
   providers: [{
     id: 'ferrowork', name: 'Ferrowork', type: 'oidc', issuer: `${authHost}/api/auth`,
