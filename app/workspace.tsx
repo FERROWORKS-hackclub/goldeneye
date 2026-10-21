@@ -22,7 +22,7 @@ const navigation = [
   ['transactions', 'Money', Wallet], ['deadlines','Due dates',Check], ['bom','Printer BOM',Boxes], ['changes','Design changes',FolderKanban], ['filament','Filament',Boxes], ['jobs','Job costs',Wallet], ['quotes','Quotes',FolderKanban], ['orders','Orders',FolderKanban], ['users', 'People', Users], ['audit', 'Activity', Activity],
 ] as const;
 
-export default function Workspace({configured, signedIn}: {configured: boolean; signedIn: boolean}) {
+export default function Workspace({configured, signedIn, loginUrl='/auth/login', logoutUrl='/auth/logout'}: {configured: boolean; signedIn: boolean;loginUrl?:string;logoutUrl?:string}) {
   const [state, setState] = useState<State | null>(null);
   const [page, setPage] = useState('overview');
   const [query, setQuery] = useState('');
@@ -32,7 +32,6 @@ export default function Workspace({configured, signedIn}: {configured: boolean; 
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice,setNotice]=useState('');
-  const [secret, setSecret] = useState('');
   const [mobile, setMobile] = useState(false);
   const [source, setSource] = useState('hcb');
   const [hcb, setHcb] = useState<Hcb | null>(null);
@@ -86,7 +85,6 @@ export default function Workspace({configured, signedIn}: {configured: boolean; 
         setState(previous => previous ? {...previous, [kind]: previous[kind].filter((row: Row) => row.id !== id)} : previous);
       }
       setNotice(result.notice || (action==='delete'?'Deleted':action==='onboard'?'Welcome to Goldeneye':action==='convert'?'Order created':'Saved'));
-      if (result.temporaryPassword) setSecret(`${result.email}\n${result.temporaryPassword}`);
       setModal(null);
       await load(); return true;
     } catch (e) {setError((e as Error).message);return false;} finally {setBusy(false);}
@@ -94,10 +92,10 @@ export default function Workspace({configured, signedIn}: {configured: boolean; 
 
   if (!state) return <main className="signin-page">
     <section className="signin-card">
-      <div className="brand"><Hexagon size={27}/>FERROWORK</div>
-      {signedIn ? error ? <><p role="alert" className="error">{error}</p><button className="primary" onClick={() => void load()}>Retry</button><a className="quiet-link" href="/auth/logout">Sign out</a></> : <div className="loading" role="status"><Loader2 className="spin" size={20}/>Loading workspace</div> : <>
+      <div className="brand"><Hexagon size={27}/>GOLDENEYE</div>
+      {signedIn ? error ? <><p role="alert" className="error">{error}</p><button className="primary" onClick={() => void load()}>Retry</button><a className="quiet-link" href={logoutUrl}>Sign out</a></> : <div className="loading" role="status"><Loader2 className="spin" size={20}/>Loading workspace</div> : <>
         <h1>Sign in</h1>
-        {configured ? <a className="primary" href="/auth/login">Continue <ArrowUpRight size={17}/></a> : <p>Setup incomplete.</p>}
+        {configured ? <a className="primary" href={loginUrl}>Continue <ArrowUpRight size={17}/></a> : <p>Setup incomplete.</p>}
       </>}
     </section>
   </main>;
@@ -137,7 +135,7 @@ export default function Workspace({configured, signedIn}: {configured: boolean; 
     <aside className={mobile ? 'open' : ''}>
       <button className="brand goldeneye-brand" onClick={() => go('overview')}><Eye size={26}/>GOLDENEYE</button>
       <nav aria-label="Main navigation">{navigation.filter(([id]) => permitted(id)).map(([id, label, Icon]) => <button className={`${page === id ? 'active' : ''} ${id === 'users' ? 'nav-divider' : ''}`} aria-current={page === id ? 'page' : undefined} key={id} onClick={() => go(id)}><Icon size={19}/><span>{label}</span>{id === 'projects' && <small>{state.projects.length}</small>}</button>)}<a className="tool-nav" href="https://printerlab.ferroworks.org"><Boxes size={19}/><span>Printer Lab</span><ArrowUpRight size={14}/></a><a className="tool-nav" href="https://ferroai.ferroworks.org"><Eye size={19}/><span>FerroAI</span><ArrowUpRight size={14}/></a></nav>
-      <div className="profile"><span className="avatar">{initials(state.me.name)}</span><div><b>{state.me.name}</b><small>{role}</small></div><a href="/auth/logout" title="Sign out" aria-label="Sign out"><LogOut size={17}/></a></div>
+      <div className="profile"><span className="avatar">{initials(state.me.name)}</span><div><b>{state.me.name}</b><small>{role}</small></div><a href={logoutUrl} title="Sign out" aria-label="Sign out"><LogOut size={17}/></a></div>
     </aside>
     <main className="main page-enter" key={page} ref={content}>
       <div className="page-heading"><div className="heading-title"><button className="mobile-button icon-button" aria-label="Open navigation" onClick={() => setMobile(true)}><Menu size={22}/></button><h1>{currentTitle}</h1></div><div className="heading-actions">
@@ -195,7 +193,6 @@ export default function Workspace({configured, signedIn}: {configured: boolean; 
       {page === 'audit' && <div className="panel table-wrap"><table><thead><tr><th>Action</th><th>Record</th><th>By</th><th>Time</th></tr></thead><tbody>{state.audit.map(row => <tr key={row.id}><td className="activity-name">{activityName(row.action)}</td><td>{recordName(row.target)}</td><td>{state.users.find(user => user.id === row.actor)?.name || 'User'}</td><td>{new Date(row.created_at).toLocaleString('en-AU', {day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'})}</td></tr>)}</tbody></table>{!state.audit.length && <Empty text="No activity"/>}</div>}
     </main>
     {modal && <Editor modal={modal} state={state} busy={busy} error={error} close={() => {setModal(null); setError('');}} save={async data => {await mutate(modal.kind, modal.row?.id ? 'update' : 'create', data, modal.row?.id);}}/>}
-    {secret && <div className="modal-overlay"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="password-title"><h2 id="password-title">User created</h2><p className="form-note">This fallback password is shown once. Save it securely if needed; the status message confirms whether a setup email was requested.</p><pre>{secret}</pre><button className="primary" onClick={() => setSecret('')}>Done</button></section></div>}
   </div>;
 }
 
@@ -221,7 +218,7 @@ function Editor({modal, state, busy, error, close, save}: {modal: Modal; state: 
     if (event.key === 'Tab') {const elements = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]') || []); const first = elements[0], last = elements[elements.length - 1]; if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last?.focus();} else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first?.focus();}}
   }}><section ref={dialog} className="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title"><div className="section-head"><h2 id="editor-title">{edit ? 'Edit' : 'New'} {singular[kind]}</h2><button className="icon-button" onClick={close} disabled={busy} aria-label="Close dialog"><X size={20}/></button></div>
     <form onSubmit={event => {event.preventDefault(); const data: Record<string, unknown> = Object.fromEntries(new FormData(event.currentTarget)); if (kind === 'projects') {data.budget = Number(data.budget);data.budgetUsd=Number(data.budgetUsd);} if (kind === 'transactions') data.amount = Number(data.amount); if (kind === 'users' && edit) data.active = data.active === 'Active'; void save(data);}}>
-      {kind === 'users' ? <>{!edit && <>{field('name', 'Full name')}{field('email', 'Email', 'email')}</>}{field('role', 'Role', 'text', ['member', 'manager', 'finance', 'viewer', 'admin'])}{edit && <label>Status<select name="active" defaultValue={row?.active ? 'Active' : 'Inactive'}><option>Active</option><option>Inactive</option></select></label>}{!edit && <p className="form-note">Auth0 emails a password-setup link. A fallback password is also shown once.</p>}</> : <>{field('name', kind === 'links' ? 'Website name' : 'Name')}
+      {kind === 'users' ? <>{!edit && <>{field('name', 'Full name')}{field('email', 'Email', 'email')}</>}{field('role', 'Role', 'text', ['member', 'manager', 'finance', 'viewer', 'admin'])}{edit && <label>Status<select name="active" defaultValue={row?.active ? 'Active' : 'Inactive'}><option>Active</option><option>Inactive</option></select></label>}{!edit && <p className="form-note">Ferrowork Identity emails a secure password-setup link.</p>}</> : <>{field('name', kind === 'links' ? 'Website name' : 'Name')}
         {kind === 'projects' && <>{field('description', 'Description')}{field('owner', 'Owner')}{field('status', 'Status', 'text', ['Planning', 'In progress', 'Completed'])}{field('due', 'Due date', 'date')}{field('budget', 'Budget (AUD)', 'number')}{field('budgetUsd','HCB budget (USD)','number')}</>}
         {kind === 'tasks' && <>{field('projectId', 'Project', 'text', state.projects.map(project => project.id))}{field('assignee', 'Assignee')}{field('priority', 'Priority', 'text', ['Medium', 'High', 'Low'])}{field('status', 'Status', 'text', ['To do', 'In progress', 'Done'])}{field('due', 'Due date', 'date')}</>}
         {kind === 'transactions' && <>{field('type', 'Type', 'text', ['Expense', 'Income'])}{field('amount', 'Amount (AUD)', 'number')}{field('category', 'Category')}{field('date', 'Date', 'date')}{field('status', 'Status', 'text', ['Pending', 'Paid'])}{field('reference', 'Reference')}<label>Project<select name="projectId" defaultValue={row?.projectId||''}><option value="">None</option>{state.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></>}

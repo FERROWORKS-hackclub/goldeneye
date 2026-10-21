@@ -1,0 +1,12 @@
+import Link from 'next/link';
+import { ArrowRight, Boxes, CircleDollarSign, Factory, FolderKanban, ShieldCheck, Users } from 'lucide-react';
+import './teams.css';
+
+const features=[
+  {icon:FolderKanban,title:'Projects that stay connected',copy:'Tasks, milestones, deadlines and project budgets together.'},
+  {icon:Factory,title:'Production operations',copy:'Jobs, quotes, orders, BOM, change reviews and material stock.'},
+  {icon:CircleDollarSign,title:'Clear project finances',copy:'Track costs, allocations and cash flow with permission-based access.'},
+  {icon:Users,title:'A workspace for every team',copy:'Invite colleagues, assign roles and keep customer data private.'},
+];
+export const metadata={title:'Goldeneye for Teams',description:'A 3D printing operations workspace for growing teams.'};
+export default function ForTeams(){return <main className="teams"><nav><span className="teams-brand"><i><Factory size={18}/></i>GOLDENEYE</span><a href="mailto:hello@ferroworks.org">Talk to us <ArrowRight size={15}/></a></nav><section className="teams-hero"><p className="teams-kicker">BUILT AT FERROWORK · MADE FOR MAKERS</p><h1>Make the work<br/>move together.</h1><p className="teams-lede">A clear workspace for the projects, people, production and money behind your next product.</p><Link href="/api/login/signin/ferrowork">Sign in to Goldeneye <ArrowRight size={17}/></Link><small>For 3D printing teams and hardware startups.</small><div className="teams-window"><div className="teams-windowbar"><span></span><span></span><span></span><b>workspace overview</b></div><div className="teams-preview"><div><p>ACTIVE PROJECTS</p><strong>08</strong></div><div><p>OPEN TASKS</p><strong>24</strong></div><div><p>ORDERS IN PRODUCTION</p><strong>06</strong></div><div className="teams-preview-note"><ShieldCheck size={17}/>Work stays private to your team</div></div></div></section><section className="teams-features"><p className="teams-kicker">ONE CONNECTED WORKSPACE</p><h2>From first sketch to shipped order.</h2><div>{features.map(({icon:Icon,title,copy})=><article key={title}><Icon size={21}/><h3>{title}</h3><p>{copy}</p></article>)}</div></section><section className="teams-bottom"><Boxes size={20}/><p>Goldeneye is built for teams who make physical things.</p><a href="mailto:hello@ferroworks.org">Get in touch <ArrowRight size={15}/></a></section><footer>© 2026 Ferrowork · Goldeneye</footer></main>}

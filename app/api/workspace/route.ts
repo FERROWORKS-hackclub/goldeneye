@@ -2,7 +2,8 @@ import {NextRequest,NextResponse} from 'next/server';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import {auth,configured} from '../../../lib/auth';
-import {db,management} from '../../../lib/server';
+import {db} from '../../../lib/server';
+import {deleteIdentity,provisionIdentity,sendIdentityInvite} from '../../../lib/identity-admin';
 import {operationSchemas} from '../../../lib/operation-schemas';
 import {jobCost} from '../../../lib/operations.mjs';
 import {can,cents} from '../../../lib/policy.mjs';
@@ -32,13 +33,13 @@ export async function POST(req:NextRequest){try{
  const u=await identity();const input=z.object({kind:z.enum(['projects','tasks','transactions','links','users','filament','jobs','quotes','orders','allocations','bom','changes','firmware','test_runs','issues']),action:z.enum(['create','update','delete','convert','invite','onboard','consume']),id:z.string().max(200).optional(),data:z.record(z.string(),z.unknown()).default({})}).parse(await req.json());
  const {kind,action,id}=input;if(action==='onboard'){if(kind!=='users'||id!==u.id)throw new Error('FORBIDDEN');await db()`UPDATE fw_users SET onboarding_completed=true WHERE id=${u.id}`;return NextResponse.json({ok:true});}if(!can(u.role,kind,true))throw new Error('FORBIDDEN'); if(action!=='create'&&!id)throw new Error('Invalid record ID');
  if(kind==='users'){
-  if(action==='invite'){const [target]=await db()`SELECT email,active FROM fw_users WHERE id=${id!}`;if(!target?.active)throw new Error('Invalid active user');const [recent]=await db()`SELECT id FROM fw_users WHERE id=${id!} AND invited_at>now()-interval '60 seconds'`;if(recent)throw new Error('Cannot resend yet; wait one minute');await sendInvite(target.email);await db()`UPDATE fw_users SET invited_at=now() WHERE id=${id!}`;await db()`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},'users.invite',${id!})`;return NextResponse.json({ok:true,notice:'Password setup email requested. Ask the user to check their inbox and spam folder.'});}
+  if(action==='invite'){const [target]=await db()`SELECT email,active FROM fw_users WHERE id=${id!}`;if(!target?.active)throw new Error('Invalid active user');const [recent]=await db()`SELECT id FROM fw_users WHERE id=${id!} AND invited_at>now()-interval '60 seconds'`;if(recent)throw new Error('Cannot resend yet; wait one minute');await sendIdentityInvite(target.email);await db()`UPDATE fw_users SET invited_at=now() WHERE id=${id!}`;await db()`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},'users.invite',${id!})`;return NextResponse.json({ok:true,notice:'Password setup email sent.'});}
   if(action==='delete')throw new Error('Cannot delete users; deactivate the account instead');
   if(action==='create'){
-   const data=z.object({email:z.email(),name:text,role:roles}).parse(input.data);const password=randomBytes(24).toString('base64url')+'aA1!';
-   const remote=await management('users','POST',{email:data.email,name:data.name,password,connection:process.env.AUTH0_CONNECTION||'Username-Password-Authentication',email_verified:false,verify_email:false});
-   try{await db().begin(async sql=>{await sql`INSERT INTO fw_users (id,email,name,role) VALUES (${remote.user_id},${data.email.toLowerCase()},${data.name},${data.role})`;await sql`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},'users.create',${remote.user_id})`;});}catch(e){await management(`users/${encodeURIComponent(remote.user_id)}`,'DELETE');throw e;}
-   let notice='';try{await sendInvite(data.email);await db()`UPDATE fw_users SET invited_at=now() WHERE id=${remote.user_id}`;notice='Password setup email requested.';}catch{notice='Account created, but the setup email failed. Use Send setup email to retry, or share the temporary password securely.';}return NextResponse.json({ok:true,temporaryPassword:password,email:data.email,notice});
+   const data=z.object({email:z.email(),name:text,role:roles}).parse(input.data);const password=randomBytes(32).toString('base64url')+'xA7!';
+   const remote=await provisionIdentity({email:data.email,name:data.name,password});const identityId=remote.user_id;
+   try{await db().begin(async sql=>{await sql`INSERT INTO fw_users (id,email,name,role) VALUES (${identityId},${data.email.toLowerCase()},${data.name},${data.role})`;await sql`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},'users.create',${identityId})`;});}catch(e){await deleteIdentity(identityId);throw e;}
+   let notice='';try{await sendIdentityInvite(data.email);await db()`UPDATE fw_users SET invited_at=now() WHERE id=${identityId}`;notice='Password setup email sent.';}catch{notice='Account created, but the setup email failed. Use Send setup email to retry.';}return NextResponse.json({ok:true,email:data.email,notice});
   }
   const data=z.object({role:roles,active:z.boolean()}).parse(input.data);
   await db().begin(async sql=>{await sql`SELECT pg_advisory_xact_lock(749183)`;const [target]=await sql`SELECT * FROM fw_users WHERE id=${id!}`;if(!target)throw new Error('Invalid user');if(id===u.id&&(!data.active||data.role!=='admin'))throw new Error('Cannot remove your own administrator access');const [count]=await sql`SELECT count(*)::int AS n FROM fw_users WHERE role='admin' AND active=true`;if(target.role==='admin'&&target.active&&count.n<=1&&(!data.active||data.role!=='admin'))throw new Error('Cannot remove the last administrator');await sql`UPDATE fw_users SET role=${data.role},active=${data.active} WHERE id=${id!}`;await sql`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},'users.update',${id!})`;});return NextResponse.json({ok:true});
@@ -74,5 +75,3 @@ export async function POST(req:NextRequest){try{
  await sql`INSERT INTO fw_audit(actor,action,target) VALUES (${u.id},${kind+'.'+action},${recordId})`;
  });return NextResponse.json({ok:true});
  }catch(e){return failure(e);}}
-
-async function sendInvite(email:string){const domain=process.env.AUTH0_DOMAIN?.replace(/^https?:\/\//,'').replace(/\/$/,'');if(!domain)throw new Error('SETUP');const response=await fetch(`https://${domain}/dbconnections/change_password`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_id:process.env.AUTH0_CLIENT_ID,email,connection:process.env.AUTH0_CONNECTION||'Ferrowork-Users'}),signal:AbortSignal.timeout(12000)});if(!response.ok)throw new Error('Setup email unavailable');}

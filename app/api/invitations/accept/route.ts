@@ -1,7 +1,8 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {createHash} from 'node:crypto';
 import {z} from 'zod';
-import {db,management} from '../../../../lib/server';
+import {db} from '../../../../lib/server';
+import {deleteIdentity,provisionIdentity} from '../../../../lib/identity-admin';
 import {tokenHash,usableInvite} from '../../../../lib/invitations.mjs';
 import {registerPending} from '../../../../lib/signup.mjs';
 import {acceptanceSchema} from '../../../../lib/invitation-validation.mjs';
@@ -18,7 +19,7 @@ async function readLimitedBody(req:NextRequest){
 }
 async function limitSignupRequests(req:NextRequest){
  const address=req.headers.get('x-forwarded-for')?.split(',')[0].trim()||'unknown';
- const fingerprint=createHash('sha256').update((process.env.AUTH0_SECRET||'')+':'+address).digest('hex');
+ const fingerprint=createHash('sha256').update((process.env.BETTER_AUTH_SECRET||'')+':'+address).digest('hex');
  await db().begin(async sql=>{await sql`SELECT pg_advisory_xact_lock(749186)`;const [attempts]=await sql`SELECT count(*)::int AS n FROM fw_signup_attempts WHERE fingerprint=${fingerprint} AND created_at>now()-interval '1 hour'`;if(attempts.n>=20)throw new Error('RATE_LIMIT');await sql`INSERT INTO fw_signup_attempts(fingerprint) VALUES (${fingerprint})`;});
 }
 export async function POST(req:NextRequest){try{
@@ -30,7 +31,7 @@ export async function POST(req:NextRequest){try{
  await limitSignupRequests(req);
  const hash=tokenHash(input.token);
  if(input.action==='preview'){const [link]=await db()`SELECT l.expires_at,l.revoked_at,u.active AS issuer_active,u.role AS issuer_role FROM fw_signup_links l JOIN fw_users u ON u.id=l.created_by WHERE token_hash=${hash}`;if(!usableInvite(link))return json({error:'This signup link has expired or was revoked. Ask an admin or manager for a new link.'},410);return json({expiresAt:link.expires_at});}
- await registerPending({database:db(),hash,input,createIdentity:async (person:{email:string;name:string;password:string})=>management('users','POST',{email:person.email,name:person.name,password:person.password,connection:process.env.AUTH0_CONNECTION||'Ferrowork-Users',email_verified:false,verify_email:true}),deleteIdentity:async (id:string)=>management(`users/${encodeURIComponent(id)}`,'DELETE')});return json({ok:true});
+ await registerPending({database:db(),hash,input,createIdentity:async (person:{email:string;name:string;password:string})=>provisionIdentity(person),deleteIdentity});return json({ok:true});
 }catch(e){
  if(e instanceof z.ZodError)return json({error:'Enter a valid name, email and a password with 12–128 characters, upper/lowercase letters, a number and a symbol.'},400);
  if(e instanceof Error&&e.message==='BODY_TOO_LARGE')return json({error:'Request is too large.'},413);

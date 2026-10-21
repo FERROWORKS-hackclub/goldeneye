@@ -1,4 +1,23 @@
-import { Auth0Client } from '@auth0/nextjs-auth0/server';
-export const configured = !!(process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET && process.env.AUTH0_SECRET && process.env.APP_BASE_URL);
-let client: Auth0Client;
-export function auth() { if (!configured) throw new Error('Auth0 is not configured'); return client ??= new Auth0Client({authorizationParameters:{connection:process.env.AUTH0_CONNECTION || 'Username-Password-Authentication',scope:'openid profile email'}}); }
+import { headers } from 'next/headers';
+import { identityAuth } from './better-auth';
+import { webSession } from './next-auth';
+import { db } from './server';
+
+export const identityConfigured = !!(process.env.DATABASE_URL && process.env.BETTER_AUTH_SECRET && process.env.BETTER_AUTH_URL);
+export const configured = !!(identityConfigured && process.env.FERROWORK_OIDC_CLIENT_ID && process.env.FERROWORK_OIDC_CLIENT_SECRET && process.env.NEXTAUTH_SECRET);
+
+export function auth() {
+  if (!configured) throw new Error('Ferrowork Identity client is not configured');
+  return {
+    async getSession() {
+      const requestHeaders=await headers();
+      const web=await webSession();
+      const native=web?.user?.email?null:await identityAuth.api.getSession({headers:requestHeaders});
+      const user=web?.user?.email?web.user:native?.user;
+      if(!user?.email)return null;
+      const [workspaceUser]=await db()`SELECT id,email,name FROM fw_users WHERE lower(email)=lower(${user.email}) AND active=true`;
+      if(!workspaceUser)return null;
+      return {user:{...user,email:workspaceUser.email,name:workspaceUser.name,sub:workspaceUser.id}};
+    },
+  };
+}

@@ -1,4 +1,6 @@
 node_modules
+mobile/node_modules
+.expo-local
 .next
 .env*
 !.env.example

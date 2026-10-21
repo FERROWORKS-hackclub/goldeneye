@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Goldeneye",
+    "slug": "goldeneye-mobile",
+    "scheme": "goldeneye",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": true, "bundleIdentifier": "org.ferrowork.goldeneye" },
+    "android": { "package": "org.ferrowork.goldeneye", "adaptiveIcon": { "backgroundColor": "#f5f2ec" } },
+    "plugins": ["expo-secure-store"]
+  }
+}

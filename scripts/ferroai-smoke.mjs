@@ -5,7 +5,7 @@ const sql=postgres(process.env.DATABASE_URL,{ssl:'require',prepare:false});
 try{
  const [row]=await sql`SELECT key_cipher FROM fw_ai_settings WHERE id=1`;
  let key=process.env.HC_AI_API_KEY;
- if(row?.key_cipher){const data=Buffer.from(row.key_cipher,'base64'),secret=createHash('sha256').update('ferroai-key:'+process.env.AUTH0_SECRET).digest(),cipher=createDecipheriv('aes-256-gcm',secret,data.subarray(0,12));cipher.setAuthTag(data.subarray(12,28));key=Buffer.concat([cipher.update(data.subarray(28)),cipher.final()]).toString('utf8')}
+ if(row?.key_cipher){const data=Buffer.from(row.key_cipher,'base64'),secret=createHash('sha256').update('ferroai-key:'+(process.env.AUTH0_SECRET||process.env.BETTER_AUTH_SECRET)).digest(),cipher=createDecipheriv('aes-256-gcm',secret,data.subarray(0,12));cipher.setAuthTag(data.subarray(12,28));key=Buffer.concat([cipher.update(data.subarray(28)),cipher.final()]).toString('utf8')}
  if(!key)throw Error('Connect the shared key first.');
  for(const model of ferroModels.filter(candidate=>!candidate.live)){try{
   const response=await fetch(`https://ai.hackclub.com/proxy/v1/${model.kind==='embedding'?'embeddings':'chat/completions'}`,{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify(model.kind==='embedding'?{model:model.id,input:'Hello FerroAI'}:{model:model.id,messages:[{role:'user',content:'Say hello in one short sentence.'}],max_tokens:32}),signal:AbortSignal.timeout(25000)});

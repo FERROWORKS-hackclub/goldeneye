@@ -1,14 +1,14 @@
 # FerroAI
 
-FerroAI lives at `/ferroai`, with admin controls at `/ferroai/settings`. It shares the existing Auth0 login and `fw_users` directory with Goldeneye and Printer Lab. Active approved accounts are required; live roles are checked server-side on every API call. Admins alone can edit settings, keys, allowed models, role access, and limits. FerroAI does not read company records into model context.
+FerroAI lives at `/ferroai`, with admin controls at `/ferroai/settings`. It shares Ferrowork Identity and the `fw_users` directory with Goldeneye and Printer Lab. Active approved accounts are required; live roles are checked server-side on every API call. Admins alone can edit settings, keys, allowed models, role access, and limits. FerroAI does not read company records into model context.
 
 ## Setup
 
 Run `node --env-file=.env.local scripts/ferroai-setup.mjs` against the existing database before deployment. This adds two tables without changing company records. The script is safe to run again and preserves settings.
 
-Sign in as an admin, open Settings and save the shared Hack Club AI API key. It is encrypted using AES-256-GCM with a key derived from the existing server-only `AUTH0_SECRET`; never rotate that secret without first planning to replace the encrypted HC key. A server-only `HC_AI_API_KEY` environment variable is also supported as a fallback. Never prefix it with `NEXT_PUBLIC_`. The API returns only connection status, never the secret.
+Sign in as an admin, open Settings and save the shared Hack Club AI API key. It is encrypted using AES-256-GCM with a key derived from the existing server-only `AUTH0_SECRET` during the transition; if that legacy value is unavailable, `BETTER_AUTH_SECRET` is used. Preserve the old value until the stored key is securely re-encrypted. A server-only `HC_AI_API_KEY` environment variable is also supported as a fallback. Never prefix it with `NEXT_PUBLIC_`. The API returns only connection status, never the secret.
 
-No separate Auth0 application or role assignments are needed: the app uses the exact same role authority as Ferrowork's existing internal tools. Changes made in Goldeneye People apply to new FerroAI requests; an already-running generation may complete.
+No separate role assignments are needed: the app uses the same role authority as Ferrowork's internal tools. Changes made in Goldeneye People apply to new FerroAI requests; an already-running generation may complete.
 
 ## Models and requests
 
