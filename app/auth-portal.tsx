@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createAuthClient } from 'better-auth/react';
 import { oauthProviderClient } from '@better-auth/oauth-provider/client';
 import { ArrowRight, Factory, ShieldCheck } from 'lucide-react';
@@ -20,8 +21,61 @@ export function IdentityConsent() {
   return <main className="identity-page"><section className="identity-card"><div className="identity-brand"><span><Factory size={19}/></span>FERROWORK</div><div className="identity-mark"><ShieldCheck size={22}/></div><p className="identity-eyebrow">APPLICATION ACCESS</p><h1>Continue to your tool?</h1><p className="identity-copy">This app requests access to your Ferrowork identity and email address.</p>{error&&<p role="alert" className="identity-error">{error}</p>}<button disabled={busy} onClick={()=>consent(true)}>Allow access<ArrowRight size={17}/></button><button className="identity-secondary" disabled={busy} onClick={()=>consent(false)}>Deny</button></section></main>;
 }
 
-export function IdentityPasswordReset() {
-  const [password,setPassword]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
-  async function submit(event:React.FormEvent){event.preventDefault();setBusy(true);const token=new URLSearchParams(window.location.search).get('token')||'';const result=await client.resetPassword({newPassword:password,token});setMessage(result.error?.message||'Password updated. Return to your workspace and sign in.');setBusy(false);}
-  return <main className="identity-page"><section className="identity-card"><div className="identity-brand"><span><Factory size={19}/></span>FERROWORK</div><div className="identity-mark"><ShieldCheck size={22}/></div><p className="identity-eyebrow">ACCOUNT SECURITY</p><h1>Set a password.</h1><p className="identity-copy">Use at least 12 characters with a number and a symbol.</p><form onSubmit={submit}><label htmlFor="password">New password</label><input id="password" autoComplete="new-password" minLength={12} type="password" value={password} onChange={e=>setPassword(e.target.value)} required/>{message&&<p role="status" className="identity-copy">{message}</p>}<button disabled={busy}>{busy?'Saving':'Update password'}<ArrowRight size={17}/></button></form></section></main>;
+export function IdentityPasswordReset({token,valid}:{token?:string;valid:boolean}) {
+  const router=useRouter();
+  const submitting=useRef(false);
+  const completed=useRef(false);
+  const [password,setPassword]=useState(''),[confirmPassword,setConfirmPassword]=useState(''),[email,setEmail]=useState('');
+  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false),[linkValid,setLinkValid]=useState(valid),[done,setDone]=useState(false),[sent,setSent]=useState(false);
+
+  async function submit(event:React.FormEvent){
+    event.preventDefault();
+    if(submitting.current||completed.current||!linkValid||!token)return;
+    if(password!==confirmPassword){setMessage('Your passwords do not match.');return;}
+    submitting.current=true;setBusy(true);setMessage('');
+    try{
+      const result=await client.resetPassword({newPassword:password,token});
+      if(result.error){
+        if(result.error.code==='INVALID_TOKEN'){
+          setLinkValid(false);setPassword('');setConfirmPassword('');
+        }else setMessage('We couldn’t update your password. Use 12–128 characters and try again.');
+        return;
+      }
+      completed.current=true;setDone(true);setPassword('');setConfirmPassword('');
+      router.replace('/reset-password/complete');
+    }catch{
+      setMessage('We couldn’t confirm the update. Try signing in with your new password before requesting another link.');
+    }finally{setBusy(false);submitting.current=false;}
+  }
+
+  async function requestLink(event:React.FormEvent){
+    event.preventDefault();if(submitting.current)return;
+    submitting.current=true;setBusy(true);setMessage('');
+    try{
+      const result=await client.requestPasswordReset({email:email.trim(),redirectTo:'/reset-password'});
+      if(result.error)setMessage(result.error.status===429?'Please wait a minute before requesting another link.':'We couldn’t send the email. Please try again.');
+      else setSent(true);
+    }catch{setMessage('We couldn’t reach Ferrowork. Please try again.');}
+    finally{setBusy(false);submitting.current=false;}
+  }
+
+  return <main className="identity-page"><section className="identity-card">
+    <div className="identity-brand"><span><Factory size={19}/></span>FERROWORK</div>
+    <div className="identity-mark"><ShieldCheck size={22}/></div>
+    <p className="identity-eyebrow">ACCOUNT SECURITY</p>
+    {done?<><h1>Password updated.</h1><p className="identity-copy">Your new password is ready.</p><a className="primary" href="https://goldeneye.ferroworks.org/">Sign in to Goldeneye</a></>:linkValid?<>
+      <h1>Set a password.</h1><p className="identity-copy">Use 12–128 characters. This link works once.</p>
+      <form onSubmit={submit}>
+        <label htmlFor="password">New password</label><input id="password" autoComplete="new-password" minLength={12} maxLength={128} type="password" value={password} onChange={e=>setPassword(e.target.value)} required disabled={busy}/>
+        <label htmlFor="confirm-password">Confirm password</label><input id="confirm-password" autoComplete="new-password" minLength={12} maxLength={128} type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required disabled={busy}/>
+        {message&&<p role="alert" className="identity-copy">{message}</p>}
+        <button disabled={busy}>{busy?'Saving':'Update password'}<ArrowRight size={17}/></button>
+      </form>
+    </>:<>
+      <h1>{sent?'Check your email.':'Need a new link?'}</h1>
+      <p className="identity-copy">{sent?'If your account exists, a fresh link is on its way. Use the newest email within one hour.':'This link has expired, has already been used, or is missing. If you already saved your new password, you can sign in.'}</p>
+      {!sent&&<form onSubmit={requestLink}><label htmlFor="reset-email">Work email</label><input id="reset-email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} required disabled={busy}/>{message&&<p role="alert" className="identity-copy">{message}</p>}<button disabled={busy}>{busy?'Sending':'Send a new link'}<ArrowRight size={17}/></button></form>}
+      <a className="identity-text-button" href="https://goldeneye.ferroworks.org/">Sign in to Goldeneye</a>
+    </>}
+  </section></main>;
 }

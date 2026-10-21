@@ -23,8 +23,8 @@ export const auth = betterAuth({
     const callbackURL = new URL(url).searchParams.get('callbackURL') || '/reset-password';
     const migrationNotice = new URL(callbackURL, authUrl).searchParams.get('campaign') === 'auth0-migration';
     const note = migrationNotice
-      ? "We've migrated away from Auth0 to our own Ferrowork identity service. Due to incompatibilities with the previous provider, your old password could not be transferred. Please use the secure link below to set a new password."
-      : undefined;
+      ? "We've migrated away from Auth0 to our own Ferrowork identity service. Due to incompatibilities with the previous provider, your old password could not be transferred. Please use the secure link below to set a new password. This link expires in one hour and can only be used once."
+      : 'This password reset link expires in one hour and can only be used once. After saving your password, return to Goldeneye to sign in.';
     await sendIdentityEmail(user.email, migrationNotice ? 'Action required: set your Ferrowork password' : 'Reset your Ferrowork password', url, note);
   } },
   emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, 'Verify your Ferrowork account', url) },
