@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {Eye, Activity, ArrowDownLeft, ArrowUpRight, Boxes, Check, ChevronRight, Download, ExternalLink, FolderKanban, Hexagon, LayoutDashboard, Loader2, LogOut, Menu, Pencil, Plus, Search, Trash2, Users, Wallet, X} from 'lucide-react';
 import {can} from '../lib/policy.mjs';
+import {loginToFerrowork} from './actions';
 import Invitations from './invitations';
 import Operations, {ProjectFinance, Due} from './operations';
 
@@ -95,7 +96,7 @@ export default function Workspace({configured, signedIn, loginUrl='/auth/login',
       <div className="brand"><Hexagon size={27}/>GOLDENEYE</div>
       {signedIn ? error ? <><p role="alert" className="error">{error}</p><button className="primary" onClick={() => void load()}>Retry</button><a className="quiet-link" href={logoutUrl}>Sign out</a></> : <div className="loading" role="status"><Loader2 className="spin" size={20}/>Loading workspace</div> : <>
         <h1>Sign in</h1>
-        {configured ? <a className="primary" href={loginUrl}>Continue <ArrowUpRight size={17}/></a> : <p>Setup incomplete.</p>}
+        {configured ? <form action={loginToFerrowork}><button className="primary" type="submit">Continue <ArrowUpRight size={17}/></button></form> : <p>Setup incomplete.</p>}
       </>}
     </section>
   </main>;
