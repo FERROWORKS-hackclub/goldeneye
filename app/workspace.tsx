@@ -23,7 +23,7 @@ const navigation = [
   ['transactions', 'Money', Wallet], ['deadlines','Due dates',Check], ['bom','Printer BOM',Boxes], ['changes','Design changes',FolderKanban], ['filament','Filament',Boxes], ['jobs','Job costs',Wallet], ['quotes','Quotes',FolderKanban], ['orders','Orders',FolderKanban], ['users', 'People', Users], ['audit', 'Activity', Activity],
 ] as const;
 
-export default function Workspace({configured, signedIn, loginUrl='/auth/login', logoutUrl='/auth/logout'}: {configured: boolean; signedIn: boolean;loginUrl?:string;logoutUrl?:string}) {
+export default function Workspace({configured, signedIn, loginUrl='/', logoutUrl='/logout'}: {configured: boolean; signedIn: boolean;loginUrl?:string;logoutUrl?:string}) {
   const [state, setState] = useState<State | null>(null);
   const [page, setPage] = useState('overview');
   const [query, setQuery] = useState('');
