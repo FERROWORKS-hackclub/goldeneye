@@ -9,7 +9,16 @@ const client = createAuthClient({ baseURL: process.env.NEXT_PUBLIC_AUTH_URL || '
 
 export function IdentitySignIn() {
   const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
-  async function submit(event:React.FormEvent){event.preventDefault();setBusy(true);setMessage('');const result=await client.signIn.email({email:email.trim(),password,callbackURL:'/'});if(result.error)setMessage(result.error.message||'Could not sign in.');else window.location.assign('/');setBusy(false);}
+  async function submit(event:React.FormEvent){
+    event.preventDefault();if(busy)return;setBusy(true);setMessage('');
+    try{
+      const result=await client.signIn.email({email:email.trim(),password,callbackURL:'https://goldeneye.ferroworks.org/'});
+      // The SDK follows the provider's signed SSO continuation URL. A second
+      // navigation here would cancel it and send users back to the login page.
+      if(result.error){setMessage(result.error.message||'Could not sign in.');setBusy(false);}
+      else setMessage('Signed in. Opening your workspace…');
+    }catch{setMessage('We couldn’t reach Ferrowork. Please try again.');setBusy(false);}
+  }
   async function reset(){if(!email.trim()){setMessage('Enter your work email first.');return;}setBusy(true);setMessage('');const result=await client.requestPasswordReset({email:email.trim(),redirectTo:'/reset-password'});setMessage(result.error?.message||'If the account exists, a password reset email is on its way.');setBusy(false);}
   return <main className="identity-page"><section className="identity-card"><div className="identity-brand"><span><Factory size={19}/></span>FERROWORK</div><div className="identity-mark"><ShieldCheck size={22}/></div><p className="identity-eyebrow">SECURE WORKSPACE ACCESS</p><h1>Welcome back.</h1><p className="identity-copy">Sign in once to reach your Ferrowork tools.</p><form onSubmit={submit}><label htmlFor="email">Work email</label><input id="email" autoComplete="username" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><label htmlFor="password">Password</label><input id="password" autoComplete="current-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} required/>{message&&<p role="status" className="identity-copy">{message}</p>}<button disabled={busy}>{busy?'Signing in':'Continue'}<ArrowRight size={17}/></button></form><button className="identity-text-button" disabled={busy} onClick={()=>void reset()}>Forgot password?</button><p className="identity-foot">Accounts are issued by your workspace administrator.</p></section></main>;
 }
