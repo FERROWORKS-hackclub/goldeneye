@@ -1,5 +1,18 @@
 # FerroSign handoff
 
+## Latest rollout status — 30 October 2026
+
+- Source pushed to `codex/ferrosign-rollout`; draft PR: https://github.com/FERROWORKS-hackclub/goldeneye/pull/1.
+- Node 22 clean install, typecheck, 40 tests and production build passed. Vercel also reported a successful preview deployment. Production integration tests remain outstanding.
+- `sign.ferroworks.org` is attached to the existing `ferrowork` project. Porkbun CNAME `sign` -> `fad657e3df90d54b.vercel-dns-017.com` saved with TTL 600; Cloudflare DNS verified. HTTPS returned 200 for the previous production app; FerroSign code is not promoted yet.
+- Vercel Production now has `FERROSIGN_BASE_URL=https://sign.ferroworks.org` and `FERROSIGN_EMAIL_FROM=FerroSign <noreply@ferroworks.org>`.
+- Existing Purelymail noreply account confirmed. No mail was sent or passwords changed.
+- Private `ferrosign-documents` Blob store prepared (iad1), not created. Browser form would add a read/write token to Production and Preview; confirmation is pending.
+- Read-only production Neon queries confirm the three signing tables are absent and the existing internal OIDC client lacks the signing callback. Database writes have not run.
+- Production is not ready: backup/restore review, signing schema, OIDC callback registration, APP_BASE_URL verification, private Blob configuration, isolated preview integrations, and the full live signing lifecycle remain required.
+
+The detailed verification notes below describe earlier checkpoints; this section supersedes their deployment status.
+
 FerroSign is the Ferroworks document-signing workspace intended for **https://sign.ferroworks.org**. This file records the work in the current source clone, what still needs verification/configuration, and a copy-ready prompt for whoever completes the rollout.
 
 ## Current implementation in this clone
