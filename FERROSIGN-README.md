@@ -7,8 +7,8 @@
 - `sign.ferroworks.org` is attached to the existing `ferrowork` project. Porkbun CNAME `sign` -> `fad657e3df90d54b.vercel-dns-017.com` saved with TTL 600; Cloudflare DNS verified. HTTPS returned 200 for the previous production app; FerroSign code is not promoted yet.
 - Vercel Production now has `FERROSIGN_BASE_URL=https://sign.ferroworks.org` and `FERROSIGN_EMAIL_FROM=FerroSign <noreply@ferroworks.org>`.
 - Existing Purelymail noreply account confirmed. No mail was sent or passwords changed.
-- Private `ferrosign-documents` Blob store prepared (iad1), not created. Browser form would add a read/write token to Production and Preview; confirmation is pending.
-- Read-only production Neon queries confirm the three signing tables are absent and the existing internal OIDC client lacks the signing callback. Database writes have not run.
+- Private `ferrosign-documents` Blob store CREATED in iad1 after explicit user approval. Store ID: `store_PgU7XAAIncctVQng`. The `ferrowork` connection shows `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY` for Production and Preview. Token values were not revealed.
+- Neon Vercel SSO project confirmed: `empty-leaf-95074774`, production `main` branch `br-little-night-a7rsjmy2`, database `neondb` (AWS Sydney). Six-hour recovery history verified and a manual pre-migration snapshot created at `2026-10-30 10:07:51 UTC`. Signing schema transaction completed successfully and verification returned all three tables. The existing internal OIDC callback update remains pending explicit approval.
 - Production is not ready: backup/restore review, signing schema, OIDC callback registration, APP_BASE_URL verification, private Blob configuration, isolated preview integrations, and the full live signing lifecycle remain required.
 
 The detailed verification notes below describe earlier checkpoints; this section supersedes their deployment status.
