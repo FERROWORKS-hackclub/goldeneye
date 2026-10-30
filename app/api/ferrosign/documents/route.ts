@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { PDFDocument } from 'pdf-lib';
-import { envelopeSchema } from '../../../../lib/ferrosign-validation.mjs';
+import { envelopeSchema, sameOriginRequest } from '../../../../lib/ferrosign-validation.mjs';
 import { db } from '../../../../lib/server';
 import { currentUser, id, staff } from '../../../../lib/ferrosign';
 
@@ -17,6 +17,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
  const user = await currentUser(); if (!user) return NextResponse.json({error:'Sign in required'},{status:401});
  if (!staff(user.role)) return NextResponse.json({error:'Staff access required'},{status:403});
+ if (!sameOriginRequest(request.headers.get('origin'),request.url)) return NextResponse.json({error:'Request origin not allowed.'},{status:403});
  const form = await request.formData(); const file = form.get('file');
  if (!(file instanceof File) || file.type !== 'application/pdf' || file.size > 4 * 1024 * 1024) return NextResponse.json({error:'Upload a PDF under 4 MB.'},{status:400});
  const parsed = envelopeSchema.safeParse({title:String(form.get('title')||''),fields:(()=>{try{return JSON.parse(String(form.get('fields')||'null'))}catch{return null}})(),recipients:(()=>{try{return JSON.parse(String(form.get('recipients')||'null'))}catch{return null}})()});

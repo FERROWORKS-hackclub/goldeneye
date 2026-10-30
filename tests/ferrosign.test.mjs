@@ -1,8 +1,13 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {envelopeSchema,staffRole,usableSigningLink,validateAnswers} from '../lib/ferrosign-validation.mjs';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest} from '../lib/ferrosign-validation.mjs';
 const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
 const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
+test('staff mutations require the exact request origin including scheme and port',()=>{
+ const url='https://sign.ferroworks.org/api/ferrosign/documents';
+ assert.equal(sameOriginRequest('https://sign.ferroworks.org',url),true);
+ for(const origin of [null,'null','bad-url','http://sign.ferroworks.org','https://other.ferroworks.org','https://sign.ferroworks.org.attacker.test','https://sign.ferroworks.org:444'])assert.equal(sameOriginRequest(origin,url),false);
+});
 test('only managers and admins create signing requests',()=>{
  for(const role of ['admin','manager'])assert.equal(staffRole(role),true);
  for(const role of ['member','finance','viewer',undefined])assert.equal(staffRole(role),false);

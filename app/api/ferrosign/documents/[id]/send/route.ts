@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { db } from '../../../../../../lib/server';
 import { appOrigin, currentUser, digest, staff, token } from '../../../../../../lib/ferrosign';
+import { sameOriginRequest } from '../../../../../../lib/ferrosign-validation.mjs';
 export const maxDuration=300;
 
-export async function POST(_: Request, {params}:{params:Promise<{id:string}>}) {
+export async function POST(request: Request, {params}:{params:Promise<{id:string}>}) {
  const user=await currentUser(); if(!user)return NextResponse.json({error:'Sign in required'},{status:401});
  if(!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
+ if(!sameOriginRequest(request.headers.get('origin'),request.url))return NextResponse.json({error:'Request origin not allowed.'},{status:403});
  const {id}=await params, sql=db();
  if(!process.env.SMTP_HOST||!process.env.SMTP_USER||!process.env.SMTP_PASSWORD)return NextResponse.json({error:'Email delivery is not configured.'},{status:503});
  const mailer=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||465),secure:process.env.SMTP_SECURE!=='false',auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASSWORD},connectionTimeout:5000,greetingTimeout:5000,socketTimeout:10000});
