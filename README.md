@@ -8,6 +8,7 @@ Goldeneye is Ferrowork’s internal workspace for a 3D printer team, with a sepa
 - FerroAI: `https://ferroai.ferroworks.org`
 - Printer Lab: `https://printerlab.ferroworks.org`
 - Ferrowork Identity: `https://auth.ferroworks.org`
+- FerroSign: `https://sign.ferroworks.org`
 - Goldeneye for Teams: `/for-teams`
 
 Goldeneye includes projects, tasks, due dates, cash-flow, project finance, HCB read-only data, team access, activity history, filament inventory, job cost estimates, quotes, orders, printer BOM and design changes. Printer Lab tracks firmware releases, prototype tests and issues; it does not flash or control printers. FerroAI uses the configured model provider. HCB values are USD; manual ledger values are AUD.
@@ -36,6 +37,7 @@ Requirements: Node.js 22+, PostgreSQL, a Purelymail mailbox for transactional ma
    - `https://goldeneye.ferroworks.org/api/login/callback/ferrowork`
    - `https://ferroai.ferroworks.org/api/login/callback/ferrowork`
    - `https://printerlab.ferroworks.org/api/login/callback/ferrowork`
+   - `https://sign.ferroworks.org/api/login/callback/ferrowork`
    - `http://127.0.0.1:3000/api/login/callback/ferrowork`
 
 Use a separate OIDC client for every external tool. Keep dynamic client registration disabled. Mark only controlled internal clients as trusted and skip consent only after their callback URLs have been verified. Local development should use `127.0.0.1` (not `localhost`) in both the browser URL and callback. Password reset and setup emails use Purelymail SMTP (`smtp.purelymail.com`, port 465 with TLS). Signup remains admin-controlled.
@@ -44,7 +46,9 @@ Run Goldeneye with `npm run dev`; start the native app with `npm run mobile`. `n
 
 ## Vercel deployment
 
-Attach all four domains above to the Vercel project, point `auth.ferroworks.org` at the same deployment, and provide the environment values above to Vercel Production. The Better Auth and SaaS schemas are installed on the linked Neon database. Connect `auth.ferroworks.org` as the Better Auth base URL and preserve the exact callbacks listed above. Deploy to a preview first and verify sign-in/out, password setup, user approval, role restrictions, mobile login and cross-tenant denial. Only then switch the production alias.
+Attach the product domains to the Vercel project, point `auth.ferroworks.org` at the same deployment, and provide the environment values above to Vercel Production. FerroSign additionally needs a Vercel Blob store (private access) and `BLOB_READ_WRITE_TOKEN`; set `FERROSIGN_BASE_URL=https://sign.ferroworks.org`, include the exact sign-in origin in `APP_BASE_URL`, and add the OIDC callback `https://sign.ferroworks.org/api/login/callback/ferrowork` to the trusted internal OIDC client. Apply FerroSign's tables with `npm run db:ferrosign` against the production database before enabling the subdomain. Purelymail SMTP must be configured for `noreply@ferroworks.org`. Attach `sign.ferroworks.org` in Vercel and configure its Porkbun DNS target as Vercel instructs. Deploy to a preview first and verify sign-in/out, PDF upload/field placement, assigned-only visibility, signing links, email delivery, completed-PDF generation and private downloads before switching the production alias.
+
+FerroSign is an auditable typed/drawn electronic-acknowledgement workflow, not a certified or qualified e-signature service. Staff with `admin`/`manager` roles can create envelopes; account holders see only envelopes assigned to them; outside signees use 14-day random-token links. Documents and completed PDFs are held in private Vercel Blob storage. Configure the database tables once with `npm run db:ferrosign`.
 
 ## Tenant isolation
 
