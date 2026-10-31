@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 export async function GET() {
  const user = await currentUser(); if (!user) return NextResponse.json({error:'Sign in required'},{status:401});
  const rows = staff(user.role)
-  ? await db()`SELECT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, COALESCE(json_agg(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at) ORDER BY r.signer_order) FILTER (WHERE r.id IS NOT NULL),'[]') AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by LEFT JOIN fw_sign_recipients r ON r.document_id=d.id WHERE d.status <> 'void' GROUP BY d.id,u.name ORDER BY d.updated_at DESC`
+  ? await db()`SELECT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, COALESCE(json_agg(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at) ORDER BY r.signer_order) FILTER (WHERE r.id IS NOT NULL),'[]') AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by LEFT JOIN fw_sign_recipients r ON r.document_id=d.id WHERE d.status <> 'void' AND NOT EXISTS (SELECT 1 FROM fw_sign_audit ta WHERE ta.document_id=d.id AND ta.event='template_saved') GROUP BY d.id,u.name ORDER BY d.updated_at DESC`
   : await db()`SELECT DISTINCT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, json_build_array(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at)) AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by JOIN fw_sign_recipients r ON r.document_id=d.id WHERE r.user_id=${user.id} AND d.status IN ('sent','completed') ORDER BY d.updated_at DESC`;
  return NextResponse.json({documents:rows,canCreate:staff(user.role)});
 }

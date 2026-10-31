@@ -14,7 +14,7 @@ export async function POST(request: Request, {params}:{params:Promise<{id:string
  const mailer=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||465),secure:process.env.SMTP_SECURE!=='false',auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASSWORD},connectionTimeout:5000,greetingTimeout:5000,socketTimeout:10000});
  try {
   const result=await sql.begin(async tx=>{
-  const [doc]=await tx`SELECT id,title,status FROM fw_sign_documents WHERE id=${id} FOR UPDATE`;
+  const [doc]=await tx`SELECT id,title,status FROM fw_sign_documents WHERE id=${id} AND NOT EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=fw_sign_documents.id AND a.event='template_saved') FOR UPDATE`;
   if(!doc||doc.status!=='draft')return {error:'Draft not found or already sent.',status:404};
   const recipients=await tx`SELECT * FROM fw_sign_recipients WHERE document_id=${id} ORDER BY signer_order`;
   if(!recipients.length)return {error:'No signers added.',status:400};
