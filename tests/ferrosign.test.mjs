@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest} from '../lib/ferrosign-validation.mjs';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess} from '../lib/ferrosign-validation.mjs';
 const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
 const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
 test('staff mutations require the exact request origin including scheme and port',()=>{
@@ -40,4 +40,12 @@ test('automatic dates are server-controlled and reject invalid values',()=>{
  const fields=[{id:'date-field',type:'date',label:'Agreement starts',required:true,autoValue:'2026-11-01'}];
  assert.deepEqual(validateAnswers(fields,{'date-field':'2099-01-01'}).answers,{'date-field':'2026-11-01'});
  assert.deepEqual(validateAnswers(fields,{}).answers,{'date-field':'2026-11-01'});
+});
+
+test('private templates belong to their staff owner and shared templates require staff access',()=>{
+ assert.equal(templateAccess({id:'owner',role:'manager'},'owner','private'),true);
+ assert.equal(templateAccess({id:'other',role:'admin'},'owner','private'),false);
+ assert.equal(templateAccess({id:'other',role:'manager'},'owner','staff'),true);
+ for(const role of ['member','viewer','finance'])assert.equal(templateAccess({id:'owner',role},'owner','staff'),false);
+ assert.equal(templateAccess(null,'owner','staff'),false);
 });
