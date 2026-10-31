@@ -3,12 +3,12 @@ import { put } from '@vercel/blob';
 import { PDFDocument } from 'pdf-lib';
 import { db } from '../../../../lib/server';
 import { currentUser,staff,id } from '../../../../lib/ferrosign';
-import { envelopeSchema,sameOriginRequest,templateAccess,signerRolesSchema } from '../../../../lib/ferrosign-validation.mjs';
+import { envelopeSchema,sameOriginRequest,templateAccess,signerRolesSchema,storedJson } from '../../../../lib/ferrosign-validation.mjs';
 export const runtime='nodejs';
 export async function GET(){
  const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
- const templates=await db()`SELECT d.id,d.title,d.fields,d.created_by AS owner_id,a.detail->>'visibility' AS visibility,a.detail->'roles' AS roles,(a.detail->>'signerCount')::int AS signer_count,u.name AS owner FROM fw_sign_documents d JOIN fw_sign_audit a ON a.document_id=d.id AND a.event='template_saved' JOIN fw_users u ON u.id=d.created_by WHERE d.status='draft' AND (d.created_by=${user.id} OR a.detail->>'visibility'='staff') ORDER BY d.created_at DESC`;
- return NextResponse.json({templates:templates.filter(template=>templateAccess(user,template.owner_id,template.visibility))},{headers:{'Cache-Control':'private, no-store'}});
+ const templates=await db()`SELECT d.id,d.title,d.fields,d.created_by AS owner_id,a.detail->>'visibility' AS visibility,a.detail->'roles' AS roles,(a.detail->>'signerCount')::int AS signer_count,u.name AS owner FROM fw_sign_documents d JOIN (SELECT document_id,event,CASE WHEN jsonb_typeof(detail)='string' THEN (detail #>> '{}')::jsonb ELSE detail END AS detail FROM fw_sign_audit) a ON a.document_id=d.id AND a.event='template_saved' JOIN fw_users u ON u.id=d.created_by WHERE d.status='draft' AND (d.created_by=${user.id} OR a.detail->>'visibility'='staff') ORDER BY d.created_at DESC`;
+ return NextResponse.json({templates:templates.filter(template=>templateAccess(user,template.owner_id,template.visibility)).map(template=>({...template,fields:storedJson(template.fields,[]),roles:storedJson(template.roles,null)}))},{headers:{'Cache-Control':'private, no-store'}});
 }
 export async function POST(request:Request){
  const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
@@ -23,8 +23,8 @@ export async function POST(request:Request){
  if(parsed.data.fields.some((f:any)=>f.page>=pageCount))return NextResponse.json({error:'A field is outside the PDF'},{status:400});
  const templateId=id(),blob=await put(`ferrosign/templates/${templateId}/source.pdf`,file,{access:'private',contentType:'application/pdf',addRandomSuffix:false});
  await db().begin(async tx=>{
-  await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${parsed.data.title},${blob.pathname},${user.id},${JSON.stringify(parsed.data.fields)}::jsonb)`;
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_saved',${JSON.stringify({visibility,signerCount:parsed.data.recipients.length,roles})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${parsed.data.title},${blob.pathname},${user.id},${tx.json(parsed.data.fields)}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_saved',${tx.json({visibility:String(visibility),signerCount:parsed.data.recipients.length,roles})}::jsonb)`;
  });
  return NextResponse.json({id:templateId},{status:201});
 }

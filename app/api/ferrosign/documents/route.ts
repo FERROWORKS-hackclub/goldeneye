@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
  const sql=db();
  try {
   await sql.begin(async tx=>{
-   await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${documentId},${title},${blob.pathname},${user.id},${JSON.stringify(fields)}::jsonb)`;
+   await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${documentId},${title},${blob.pathname},${user.id},${tx.json(fields)}::jsonb)`;
    for (let i=0;i<recipients.length;i++) {
     const recipient=recipients[i], email=recipient.email.trim().toLowerCase();
     const [account]=await tx`SELECT id FROM fw_users WHERE lower(email)=${email} AND active=true`;

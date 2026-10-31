@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess,signerRolesSchema} from '../lib/ferrosign-validation.mjs';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess,signerRolesSchema,storedJson} from '../lib/ferrosign-validation.mjs';
 const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
 const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
 test('staff mutations require the exact request origin including scheme and port',()=>{
@@ -62,4 +62,12 @@ test('prepared contract details are allowed in templates but required before sig
  assert.ok(validateAnswers([prepared],{}).error);
  assert.equal(validateAnswers([{...prepared,autoValue:'Build agreed deliverables'}],{}).answers[prepared.id],'Build agreed deliverables');
  assert.equal(envelopeSchema.safeParse({...envelope,fields:[{...field,autoValue:'forged signature'}]}).success,false);
+});
+
+test('legacy JSON text is decoded without losing field or signer role metadata',()=>{
+ const value={roles:[{role:'parent',optionalUnder18:true}],fields:[field]};
+ assert.deepEqual(storedJson(JSON.stringify(value),{}),value);
+ assert.deepEqual(storedJson(JSON.stringify(JSON.stringify(value)),{}),value);
+ assert.deepEqual(storedJson(value,{}),value);
+ assert.deepEqual(storedJson('bad-json',[]),[]);
 });
