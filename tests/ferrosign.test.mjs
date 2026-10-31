@@ -35,3 +35,9 @@ test('each signature field remains independently required for multiple signers',
  assert.equal(envelopeSchema.safeParse({...envelope,fields:[field,{...second,recipientIndex:1}],recipients:[...envelope.recipients,{name:'Second',email:'second@example.com'}]}).success,true);
  assert.ok(validateAnswers([field,second],{[field.id]:'test'}).error);
 });
+
+test('automatic dates are server-controlled and reject invalid values',()=>{
+ const fields=[{id:'date-field',type:'date',label:'Agreement starts',required:true,autoValue:'2026-11-01'}];
+ assert.deepEqual(validateAnswers(fields,{'date-field':'2099-01-01'}).answers,{'date-field':'2026-11-01'});
+ assert.deepEqual(validateAnswers(fields,{}).answers,{'date-field':'2026-11-01'});
+});
