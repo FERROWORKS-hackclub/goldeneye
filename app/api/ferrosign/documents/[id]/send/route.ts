@@ -27,7 +27,7 @@ export async function POST(request: Request, {params}:{params:Promise<{id:string
    await mailer.sendMail({from:process.env.FERROSIGN_EMAIL_FROM||'FerroSign <noreply@ferroworks.org>',to:recipient.email,subject:`Signature requested: ${doc.title}`,text:`Hello ${recipient.name},\n\nYou have a document to review and sign: ${doc.title}\n\nOpen this secure link (expires in 14 days): ${url}\n\nIf you weren't expecting this message, you can ignore it.`,html:`<p>Hello ${escapeHtml(recipient.name)},</p><p>You have a document to review and sign: <strong>${escapeHtml(doc.title)}</strong>.</p><p><a href="${url}">Review and sign document</a></p><p>This secure link expires in 14 days. If you weren't expecting this message, ignore it.</p>`});
   }
   await tx`UPDATE fw_sign_documents SET status='sent',updated_at=now() WHERE id=${id}`;
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${id},${user.id},'sent',${JSON.stringify({recipientCount:recipients.length})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${id},${user.id},'sent',${tx.json({recipientCount:recipients.length})}::jsonb)`;
   return {ok:true};
   });
   if('error' in result)return NextResponse.json({error:result.error},{status:result.status});
