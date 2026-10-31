@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess} from '../lib/ferrosign-validation.mjs';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess,signerRolesSchema} from '../lib/ferrosign-validation.mjs';
 const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
 const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
 test('staff mutations require the exact request origin including scheme and port',()=>{
@@ -48,4 +48,18 @@ test('private templates belong to their staff owner and shared templates require
  assert.equal(templateAccess({id:'other',role:'manager'},'owner','staff'),true);
  for(const role of ['member','viewer','finance'])assert.equal(templateAccess({id:'owner',role},'owner','staff'),false);
  assert.equal(templateAccess(null,'owner','staff'),false);
+});
+
+test('contractor templates keep the conditional parent in the final slot',()=>{
+ const roles=[{label:'Staff',role:'staff',defaultCurrentUser:true},{label:'Contractor',role:'contractor'},{label:'Parent',role:'parent',optionalUnder18:true}];
+ assert.equal(signerRolesSchema.safeParse(roles).success,true);
+ assert.equal(signerRolesSchema.safeParse([roles[2],roles[0]]).success,false);
+ assert.equal(signerRolesSchema.safeParse([{label:'Contractor',role:'contractor',defaultCurrentUser:true}]).success,false);
+});
+test('prepared contract details are allowed in templates but required before signing',()=>{
+ const prepared={...field,type:'sentence',id:'12345678-1234-4234-8234-123456789abe',label:'Services',prepared:true,autoValue:''};
+ assert.equal(envelopeSchema.safeParse({...envelope,fields:[field,prepared]}).success,true);
+ assert.ok(validateAnswers([prepared],{}).error);
+ assert.equal(validateAnswers([{...prepared,autoValue:'Build agreed deliverables'}],{}).answers[prepared.id],'Build agreed deliverables');
+ assert.equal(envelopeSchema.safeParse({...envelope,fields:[{...field,autoValue:'forged signature'}]}).success,false);
 });
