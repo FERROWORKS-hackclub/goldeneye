@@ -8,6 +8,7 @@ const redirectUris=[
   'https://goldeneye.ferroworks.org/api/login/callback/ferrowork',
   'https://ferroai.ferroworks.org/api/login/callback/ferrowork',
   'https://printerlab.ferroworks.org/api/login/callback/ferrowork',
+  'https://sign.ferroworks.org/api/login/callback/ferrowork',
   'http://127.0.0.1:3000/api/login/callback/ferrowork',
 ];
 export async function POST(req:NextRequest){try{

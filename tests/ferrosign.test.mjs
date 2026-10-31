@@ -1,0 +1,37 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest} from '../lib/ferrosign-validation.mjs';
+const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
+const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
+test('staff mutations require the exact request origin including scheme and port',()=>{
+ const url='https://sign.ferroworks.org/api/ferrosign/documents';
+ assert.equal(sameOriginRequest('https://sign.ferroworks.org',url),true);
+ for(const origin of [null,'null','bad-url','http://sign.ferroworks.org','https://other.ferroworks.org','https://sign.ferroworks.org.attacker.test','https://sign.ferroworks.org:444'])assert.equal(sameOriginRequest(origin,url),false);
+});
+test('only managers and admins create signing requests',()=>{
+ for(const role of ['admin','manager'])assert.equal(staffRole(role),true);
+ for(const role of ['member','finance','viewer',undefined])assert.equal(staffRole(role),false);
+});
+test('envelope validation rejects malformed, duplicate, out-of-bounds and unassigned fields',()=>{
+ assert.equal(envelopeSchema.safeParse(envelope).success,true);
+ for(const fields of [[null],[{...field,width:0}],[{...field,x:.9}],[{...field,recipientIndex:1}],[field,field],[{...field,required:false}],[{...field,id:'__proto__'}]])assert.equal(envelopeSchema.safeParse({...envelope,fields}).success,false);
+ assert.equal(envelopeSchema.safeParse({...envelope,recipients:[...envelope.recipients,{name:'Other',email:'other@example.com'}]}).success,false);
+});
+test('link expiry fails closed for missing or invalid timestamps and at expiry',()=>{
+ const now=new Date('2026-10-30T00:00:00Z');
+ assert.equal(usableSigningLink({token_expires_at:'2026-10-31'},now),true);
+ for(const row of [null,{}, {token_expires_at:null},{token_expires_at:'invalid'},{token_expires_at:now}])assert.equal(usableSigningLink(row,now),false);
+});
+test('answers reject missing required fields, cross-signer fields and forged PNGs',()=>{
+ for(const input of [null,[],{}, {[field.id]:123},{[field.id]:'data:image/png;base64,YWJj'}, {unknown:'value'}])assert.ok(validateAnswers([field],input).error);
+});
+test('text fields enforce dates, numbers, words, bounds and PDF font support',()=>{
+ const check=(type,value)=>validateAnswers([{...field,type}],{[field.id]:value});
+ for(const [type,value] of [['date','2026-02-30'],['date','yesterday'],['number','NaN'],['number','1e999'],['word','two words'],['sentence','a'.repeat(501)],['sentence','漢字'],['sentence','   ']])assert.ok(check(type,value).error);
+ for(const [type,value] of [['date','2026-10-30'],['number','-42.5'],['word','accepted'],['sentence','I agree.']])assert.equal(check(type,value).answers[field.id],value);
+});
+test('each signature field remains independently required for multiple signers',()=>{
+ const second={...field,id:'12345678-1234-4234-8234-123456789abd'};
+ assert.equal(envelopeSchema.safeParse({...envelope,fields:[field,{...second,recipientIndex:1}],recipients:[...envelope.recipients,{name:'Second',email:'second@example.com'}]}).success,true);
+ assert.ok(validateAnswers([field,second],{[field.id]:'test'}).error);
+});
