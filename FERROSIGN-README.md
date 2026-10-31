@@ -2,15 +2,15 @@
 
 ## Latest rollout status — 31 October 2026
 
-- Source pushed to `codex/ferrosign-rollout`; draft PR: https://github.com/FERROWORKS-hackclub/goldeneye/pull/1.
-- Node 22 clean install, typecheck, all 41 tests and production build passed. Latest commit `600c4b3` has a successful Vercel preview. Production integration checks remain outstanding.
-- `sign.ferroworks.org` is attached to the existing `ferrowork` project. Porkbun CNAME `sign` -> `fad657e3df90d54b.vercel-dns-017.com` is saved with TTL 600; Cloudflare DNS resolves that target and HTTPS works. The FerroSign production release is still pending.
+- PR #1 was merged. Production `main` is `b38a5ece9d7a281cc8647d10ef1e8c1b5b6bf8e7`.
+- Node 22 clean install, typecheck, all 41 tests and production build passed. Vercel reports the merged production deployment Ready; `https://sign.ferroworks.org` returns HTTP 200 and the FerroSign title.
+- `sign.ferroworks.org` is attached to the existing `ferrowork` project. Porkbun CNAME `sign` -> `fad657e3df90d54b.vercel-dns-017.com` is saved with TTL 600; DNS resolves that target and HTTPS works.
 - Vercel Production now has `FERROSIGN_BASE_URL=https://sign.ferroworks.org` and `FERROSIGN_EMAIL_FROM=FerroSign <noreply@ferroworks.org>`.
 - Existing Purelymail noreply account confirmed. SMTP production settings are already present; no password was changed. One clearly labelled test invitation to `benjamin.graetz@henleyhs.sa.edu.au` is authorized but has not yet been sent.
 - Private `ferrosign-documents` Blob store CREATED in iad1 after explicit user approval. Store ID: `store_PgU7XAAIncctVQng`. The `ferrowork` connection shows `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY` for Production and Preview. Token values were not revealed.
 - Neon Vercel SSO project: `empty-leaf-95074774`, production `main` branch `br-little-night-a7rsjmy2`, database `neondb` (AWS Sydney). Six-hour recovery history is available; a manual pre-migration snapshot was created at `2026-10-30 10:07:51 UTC`. The signing schema was applied and all three tables verified. Existing Goldeneye OIDC client now contains the approved `https://sign.ferroworks.org/api/login/callback/ferrowork` callback; all prior callbacks were preserved.
 - User approved creating the private Blob store and connecting its token, and approved that callback. Identity's trusted origin, Porkbun DNS, Vercel domain and Production base/sender settings are configured. Preview has Blob connected, but preview identity/database/SMTP are not isolated or validated.
-- Draft PR #1 is open on `codex/ferrosign-rollout` at `600c4b3b62d9dfe5cd67f6d930db631c51450b11`; GitHub reports Vercel Preview success. Merge/release, production login and staff workflow, one authorized test invitation, external signing, final-PDF output and private file access still need live verification.
+- The live home page loaded in an existing signed-in session, but there was no document assigned and the account view did not show the admin/manager-only create form. Staff creation, the one authorized test invitation, external signing, final-PDF output and private file access still need live verification with an authorized staff account. A new OIDC login/callback round trip also remains unverified.
 
 The detailed verification notes below describe earlier checkpoints; this section supersedes their deployment status.
 
@@ -45,7 +45,7 @@ FerroSign is the Ferroworks document-signing workspace intended for **https://si
 
 1. **Review/test the full signing lifecycle.** On Node 22+, test account login/logout on the subdomain, admin/manager authorization, member assigned-only visibility, invalid/expired/reused tokens, multi-page PDFs, multiple co-signers with fields assigned to different people, field validation, PDF coordinates, final PDF rendering, and private downloads. Confirm a partial mail-send failure remains safely retryable and does not expose a draft.
 2. **Extend integration tests.** Cover role/ownership checks, token expiry and digest behavior, field validation, and completion/audit behavior. Run `npm run typecheck`, `npm test`, and `npm run build` with test/production-like environment values.
-3. **Production release.** Merge draft PR #1 once the latest successful Vercel preview is confirmed; wait for the production deployment to finish before testing the live domain. Do not place credentials in the repository or a `NEXT_PUBLIC_*` variable.
+3. **Staff workflow.** Open the production site as an existing admin/manager account and verify staff creation and the one authorized test invitation. Do not place credentials in the repository or a `NEXT_PUBLIC_*` variable.
 4. **Verify live integration.** Confirm subdomain login, staff authorization, assigned-only visibility, one approved clearly labelled test email, token expiry/replay, multi-page field placement, external signing, audit/completion, final PDF rendering, and private Blob delivery. Test SMTP rollback/retry behavior if practical.
 5. **Preview isolation.** Before enabling preview signing workflows, provide isolated identity/database/mail settings. The current preview Blob connection alone does not make preview end-to-end testing safe or representative.
 
@@ -63,5 +63,5 @@ Requirements:
 - Verify schema/migration safety before applying scripts/ferrosign-schema.sql to the intended database. Then configure the real Vercel Blob token, Purelymail SMTP, OIDC callback/trusted origin, and APP_BASE_URL. Add the subdomain in Vercel and configure Porkbun using the exact DNS target shown by Vercel. Never guess DNS targets or request/post secrets in chat.
 - Deploy and test a preview before production. Do not claim the live subdomain is ready until DNS/TLS, login, email delivery, external signing, completed downloads, and Blob privacy have all been verified.
 
-This repository and branch are already pushed and the draft PR is open. Finish the production rollout only after reviewing the latest Vercel preview, then record the actual live results here and in the user handoff. Do not claim production readiness until live authentication, email delivery, signing, completed downloads, and Blob privacy have been verified.
+The production rollout is deployed. The outstanding end-to-end checks need an existing admin/manager account and one approved test recipient. Record the actual results here and in the user handoff; do not claim the signing lifecycle is verified until live email delivery, external signing, completed downloads, and Blob privacy have been checked.
 ```
