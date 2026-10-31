@@ -14,7 +14,7 @@ export default function Signer({token}:{token:string}){
  const [activeField,setActiveField]=useState<string|null>(null);
  const scrollToField=useCallback(()=>{if(activeField)document.getElementById(`pdf-field-${activeField}`)?.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})},[activeField]);
  useEffect(()=>{scrollToField()},[activeField,pageNumber,scrollToField]);
- function jumpToField(field:Field){setActiveField(field.id);setPageNumber(field.page+1)}
+ function jumpToField(field:Field){setActiveField(field.id);setPageNumber(field.page+1);if(field.page===pageNumber-1)document.getElementById(`pdf-field-${field.id}`)?.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}
  useEffect(()=>{fetch(`/api/ferrosign/sign/${encodeURIComponent(token)}`).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error);setData(d)}).catch(e=>setError(e.message))},[token]);
  async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');try{const r=await fetch(`/api/ferrosign/sign/${encodeURIComponent(token)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers})});const d=await r.json();if(!r.ok)throw Error(d.error);setData({...data,signed:true})}catch(e){setError(e instanceof Error?e.message:'Unable to submit signature.')}finally{setBusy(false)}}
  if(error&&!data)return <main className="fs-shell"><section className="fs-card fs-signer"><h1>Signing link unavailable</h1><p>{error}</p></section></main>;
