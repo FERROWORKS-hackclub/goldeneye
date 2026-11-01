@@ -14,7 +14,7 @@ export async function POST(request: Request, {params}:{params:Promise<{id:string
  const mailer=nodemailer.createTransport({host:process.env.SMTP_HOST,port:Number(process.env.SMTP_PORT||465),secure:process.env.SMTP_SECURE!=='false',auth:{user:process.env.SMTP_USER,pass:process.env.SMTP_PASSWORD},connectionTimeout:5000,greetingTimeout:5000,socketTimeout:10000});
  try {
   const result=await sql.begin(async tx=>{
-  const [doc]=await tx`SELECT id,title,status FROM fw_sign_documents WHERE id=${id} AND NOT EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=fw_sign_documents.id AND a.event='template_saved') FOR UPDATE`;
+  const [doc]=await tx`SELECT id,title,status FROM fw_sign_documents WHERE id=${id} AND NOT EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=fw_sign_documents.id AND a.event='template_saved') AND (created_by=${user.id} OR ${user.role} IN ('admin','manager') OR (${user.role}='finance' AND EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=fw_sign_documents.id AND a.event='document_access' AND a.detail->>'accessGroup'='finance'))) FOR UPDATE`;
   if(!doc||!['draft','sent'].includes(doc.status))return {error:'Request is not available to send.',status:404};
   const recipients=await tx`SELECT * FROM fw_sign_recipients WHERE document_id=${id} AND signed_at IS NULL ORDER BY signer_order`;
   if(!recipients.length)return {error:'No signers added.',status:400};

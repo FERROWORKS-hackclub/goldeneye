@@ -1,0 +1,188 @@
+{
+  "title": "Purchase and Spend Approval Request",
+  "roles": [
+    {
+      "label": "Requestor",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Approver",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "finance",
+  "builtinKey": "purchase-request",
+  "version": 1,
+  "fields": [
+    {
+      "id": "276dc678-c74e-46b0-a5f8-e710cd29bef0",
+      "type": "date",
+      "label": "Request date",
+      "description": "Please complete: Request date.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "c4d3363e-b89b-46f8-9359-9b8df08e9a29",
+      "type": "sentence",
+      "label": "Supplier / vendor",
+      "description": "Please complete: Supplier / vendor.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "f31b3c5b-8bc6-4084-9c07-3ffbf2e8ff41",
+      "type": "sentence",
+      "label": "Item or service",
+      "description": "Please complete: Item or service.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "bd6067cb-e9c2-44cf-ace0-c6a132fe9c50",
+      "type": "sentence",
+      "label": "Business reason",
+      "description": "Please complete: Business reason.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "89ba4e61-5e81-497c-b00e-33ca682b8a67",
+      "type": "number",
+      "label": "Quantity",
+      "description": "Please complete: Quantity.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "d774e0db-f440-43a0-99d0-7c05d896bcfc",
+      "type": "number",
+      "label": "Estimated total (AUD)",
+      "description": "Please complete: Estimated total (AUD).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "ebaa4904-61a0-4fb5-a068-7d29fc906ef0",
+      "type": "date",
+      "label": "Required by date",
+      "description": "Please complete: Required by date.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "4699ad74-2bee-414c-ac07-47e1335bb9a8",
+      "type": "word",
+      "label": "Budget / project code",
+      "description": "Please complete: Budget / project code.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "494bf7ff-e13d-4287-b371-88eab7cfddc0",
+      "type": "signature",
+      "label": "Requestor signature",
+      "description": "Please complete: Requestor signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5961467650168074,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "b11ab2c7-f9ef-4dd4-9dcc-7456332117f0",
+      "type": "word",
+      "label": "Decision",
+      "description": "Please complete: Decision.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "a14805e9-a114-447a-880c-2be5a91d3c30",
+      "type": "number",
+      "label": "Approved amount (AUD)",
+      "description": "Please complete: Approved amount (AUD).",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "ad608c16-0ad9-4662-95e6-e99e9f705223",
+      "type": "sentence",
+      "label": "Conditions / notes",
+      "description": "Please complete: Conditions / notes.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "9f76de87-7efc-446b-8e0b-011770700609",
+      "type": "signature",
+      "label": "Approver signature",
+      "description": "Please complete: Approver signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

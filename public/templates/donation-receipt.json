@@ -1,0 +1,175 @@
+{
+  "title": "Donation Acknowledgment Receipt (Two-Part)",
+  "roles": [
+    {
+      "label": "Ferroworks representative",
+      "role": "staff",
+      "defaultCurrentUser": true
+    }
+  ],
+  "accessGroup": "finance",
+  "builtinKey": "donation-receipt",
+  "version": 1,
+  "fields": [
+    {
+      "id": "8ef8bbbe-279c-4ab7-a349-87b3c220719b",
+      "type": "word",
+      "label": "Receipt number",
+      "description": "Please complete: Receipt number.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.16853745738754466,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "fea8d703-46d0-4a19-b0b4-47e9f9d2b56d",
+      "type": "date",
+      "label": "Date received",
+      "description": "Please complete: Date received.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.22198862084120252,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "bd91d64e-fbe6-4598-8906-1f3a3354ea7a",
+      "type": "sentence",
+      "label": "Donor name (or Anonymous)",
+      "description": "Please complete: Donor name (or Anonymous).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.2754397842948604,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "948498d3-bf7c-4324-9b1f-6a8078ba75ff",
+      "type": "sentence",
+      "label": "Donor email / address (optional)",
+      "description": "Please complete: Donor email / address (optional).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.3288909477485182,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "04e10d17-1a1d-4288-9340-68cd282180c5",
+      "type": "number",
+      "label": "Amount received (AUD)",
+      "description": "Please complete: Amount received (AUD).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.38234211120217604,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "d6a15468-12ae-407a-96cb-a2002fbee580",
+      "type": "word",
+      "label": "Donation method / reference",
+      "description": "Please complete: Donation method / reference.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.4357932746558339,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "caa5069c-0a8f-4031-a71b-6d26dadea896",
+      "type": "sentence",
+      "label": "Purpose / restriction",
+      "description": "Please complete: Purpose / restriction.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.48924443810949175,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "8a01a46a-2e9b-4dec-9af6-65fbfcac277e",
+      "type": "signature",
+      "label": "Received by / signature",
+      "description": "Please complete: Received by / signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.5426956015631496,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    }
+  ]
+}

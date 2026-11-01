@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
 export async function GET() {
  const user = await currentUser(); if (!user) return NextResponse.json({error:'Sign in required'},{status:401});
  const rows = staff(user.role)
-  ? await db()`SELECT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, COALESCE(json_agg(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at) ORDER BY r.signer_order) FILTER (WHERE r.id IS NOT NULL),'[]') AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by LEFT JOIN fw_sign_recipients r ON r.document_id=d.id WHERE d.status <> 'void' AND NOT EXISTS (SELECT 1 FROM fw_sign_audit ta WHERE ta.document_id=d.id AND ta.event='template_saved') GROUP BY d.id,u.name ORDER BY d.updated_at DESC`
+  ? await db()`SELECT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, COALESCE(json_agg(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at) ORDER BY r.signer_order) FILTER (WHERE r.id IS NOT NULL),'[]') AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by LEFT JOIN fw_sign_recipients r ON r.document_id=d.id WHERE d.status <> 'void' AND NOT EXISTS (SELECT 1 FROM fw_sign_audit ta WHERE ta.document_id=d.id AND ta.event='template_saved') AND (NOT EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=d.id AND a.event='document_access') OR d.created_by=${user.id} OR ${user.role} IN ('admin','manager') OR EXISTS (SELECT 1 FROM fw_sign_recipients ar WHERE ar.document_id=d.id AND ar.user_id=${user.id}) OR (${user.role}='finance' AND EXISTS (SELECT 1 FROM fw_sign_audit a WHERE a.document_id=d.id AND a.event='document_access' AND a.detail->>'accessGroup'='finance'))) GROUP BY d.id,u.name ORDER BY d.updated_at DESC`
   : await db()`SELECT DISTINCT d.id,d.title,d.status,d.created_at,d.updated_at,u.name AS creator, json_build_array(json_build_object('id',r.id,'name',r.name,'email',r.email,'signed_at',r.signed_at)) AS recipients FROM fw_sign_documents d JOIN fw_users u ON u.id=d.created_by JOIN fw_sign_recipients r ON r.document_id=d.id WHERE r.user_id=${user.id} AND d.status IN ('sent','completed') ORDER BY d.updated_at DESC`;
  return NextResponse.json({documents:rows,canCreate:staff(user.role),me:{name:user.name,email:user.email}});
 }
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
  const parsed = envelopeSchema.safeParse({title:String(form.get('title')||''),fields:(()=>{try{return JSON.parse(String(form.get('fields')||'null'))}catch{return null}})(),recipients:(()=>{try{return JSON.parse(String(form.get('recipients')||'null'))}catch{return null}})()});
  if (!parsed.success) return NextResponse.json({error:parsed.error.issues[0]?.message||'Invalid signing request.'},{status:400});
  const {title,fields,recipients}=parsed.data;
+ const accessGroup=String(form.get('accessGroup')||'');if(accessGroup&&!['incident','finance','personal'].includes(accessGroup))return NextResponse.json({error:'Invalid record access group.'},{status:400});
  for(const field of fields){if(field.prepared&&validateAnswers([field],{}).error)return NextResponse.json({error:`Complete before sending: ${field.label}`},{status:400})}
  for(const recipient of recipients){if(recipient.role==='staff'){const [account]=await db()`SELECT role FROM fw_users WHERE lower(email)=${recipient.email} AND active=true`;if(!account||!staff(account.role))return NextResponse.json({error:'The staff signer must be an active staff account.'},{status:400})}}
  const documentId=id();
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
     await tx`INSERT INTO fw_sign_recipients(id,document_id,user_id,email,name,signer_order) VALUES (${id()},${documentId},${account?.id||null},${email},${recipient.name.trim().slice(0,120)},${i+1})`;
    }
    await tx`INSERT INTO fw_sign_audit(document_id,actor,event) VALUES (${documentId},${user.id},'draft_created')`;
+   if(accessGroup)await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${documentId},${user.id},'document_access',${tx.json({scope:'restricted',accessGroup})}::jsonb)`;
   });
  } catch(error) { console.error('FerroSign document creation failed',error); return NextResponse.json({error:'Could not save document.'},{status:500}); }
  return NextResponse.json({id:documentId}, {status:201});

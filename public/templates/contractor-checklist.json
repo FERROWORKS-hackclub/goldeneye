@@ -1,0 +1,201 @@
+{
+  "title": "Contractor Onboarding and Site Induction Checklist",
+  "roles": [
+    {
+      "label": "Contractor",
+      "role": "contractor"
+    },
+    {
+      "label": "Staff sponsor",
+      "role": "staff",
+      "defaultCurrentUser": true
+    }
+  ],
+  "accessGroup": "personal",
+  "builtinKey": "contractor-checklist",
+  "version": 1,
+  "fields": [
+    {
+      "id": "9d27c8f2-882b-4881-9073-7a285b297073",
+      "type": "sentence",
+      "label": "Contractor / business name",
+      "description": "Please complete: Contractor / business name.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "e5e938a6-bda0-4923-89da-65ada37ed112",
+      "type": "sentence",
+      "label": "Contact and email",
+      "description": "Please complete: Contact and email.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a14a727e-6e82-4a11-b4f5-09f0cf5c5443",
+      "type": "sentence",
+      "label": "Work scope",
+      "description": "Please complete: Work scope.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "3fddf10d-5853-46e3-9e0a-2c08eb9d999d",
+      "type": "sentence",
+      "label": "Site / project",
+      "description": "Please complete: Site / project.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "9c7b430a-0098-4be4-a014-2f25d6459b50",
+      "type": "date",
+      "label": "Start date",
+      "description": "Please complete: Start date.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "6cb4e448-a3b5-4a5e-9da7-9c785631f051",
+      "type": "sentence",
+      "label": "Emergency contact",
+      "description": "Please complete: Emergency contact.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "b9221523-05ed-48cf-a571-df789323b63b",
+      "type": "sentence",
+      "label": "Required licences / expiry",
+      "description": "Please complete: Required licences / expiry.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "92746e94-a71d-4a66-aafa-d5c0e292eee8",
+      "type": "checkbox",
+      "label": "Insurance evidence checked?",
+      "description": "Please complete: Insurance evidence checked?.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 1
+    },
+    {
+      "id": "882d0f75-d336-4281-bb97-92f3c4451f03",
+      "type": "signature",
+      "label": "Contractor signature",
+      "description": "Please complete: Contractor signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5961467650168074,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a7d99122-a7d5-4c18-a98e-7f1bbac8c1ad",
+      "type": "checkbox",
+      "label": "Emergency procedures explained?",
+      "description": "Please complete: Emergency procedures explained?.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 1
+    },
+    {
+      "id": "5f8b4261-4df1-423b-a3fb-69fc5c302ed2",
+      "type": "checkbox",
+      "label": "Hazards and controls reviewed?",
+      "description": "Please complete: Hazards and controls reviewed?.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 1
+    },
+    {
+      "id": "9226a998-83d4-462b-b68c-40a2bbf8e2a7",
+      "type": "sentence",
+      "label": "PPE / equipment issued",
+      "description": "Please complete: PPE / equipment issued.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "6fe3e242-8be5-440d-bba3-09ca498612e8",
+      "type": "sentence",
+      "label": "Questions / actions",
+      "description": "Please complete: Questions / actions.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "0c80f93a-5fb4-44ed-8dc4-9932e7cef055",
+      "type": "signature",
+      "label": "Staff sponsor signature",
+      "description": "Please complete: Staff sponsor signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

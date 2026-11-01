@@ -1,0 +1,188 @@
+{
+  "title": "Hazard Identification and Risk Assessment",
+  "roles": [
+    {
+      "label": "Assessor",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Reviewer",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "incident",
+  "builtinKey": "hazard-assessment",
+  "version": 1,
+  "fields": [
+    {
+      "id": "8248a016-b544-4d2f-a2a4-b27009b81d57",
+      "type": "sentence",
+      "label": "Task / work area",
+      "description": "Please complete: Task / work area.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "bf034ffe-565b-4fc8-a83e-4dd9193091f5",
+      "type": "sentence",
+      "label": "Hazard",
+      "description": "Please complete: Hazard.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "1f4ba919-0c20-4c5b-9363-1d9c099f59f3",
+      "type": "sentence",
+      "label": "Who could be harmed and how",
+      "description": "Please complete: Who could be harmed and how.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "37191a44-5f40-481b-afa1-73d0f90a4099",
+      "type": "sentence",
+      "label": "Current controls",
+      "description": "Please complete: Current controls.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "46148b9d-2d5e-4703-b6c5-46f6a7b5d301",
+      "type": "number",
+      "label": "Likelihood (1-5)",
+      "description": "Please complete: Likelihood (1-5).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "b4374b80-0b90-4bcd-af6a-3ae9424b07c4",
+      "type": "number",
+      "label": "Consequence (1-5)",
+      "description": "Please complete: Consequence (1-5).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "ef82f9e7-ffe6-47e3-a77b-947f716e47bd",
+      "type": "word",
+      "label": "Initial risk / priority",
+      "description": "Please complete: Initial risk / priority.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "cb5925f7-90e9-4fc8-af49-f32bc4dbb401",
+      "type": "sentence",
+      "label": "Additional controls (use hierarchy)",
+      "description": "Please complete: Additional controls (use hierarchy).",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "2846366f-e1e2-4e67-8c05-a111dbdc5c7f",
+      "type": "sentence",
+      "label": "Action owner",
+      "description": "Please complete: Action owner.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "e1607e79-d41f-4118-a4fe-2efe51378e7e",
+      "type": "date",
+      "label": "Due date",
+      "description": "Please complete: Due date.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "246c7604-0356-4ae6-96c5-b849733096b7",
+      "type": "sentence",
+      "label": "Residual risk / review date",
+      "description": "Please complete: Residual risk / review date.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "9b7574a1-46b2-4ddf-a0cd-f68497d380f7",
+      "type": "signature",
+      "label": "Assessor signature",
+      "description": "Please complete: Assessor signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "fadbf5bd-9af1-4d86-9e7c-91c29021b424",
+      "type": "signature",
+      "label": "Reviewer signature",
+      "description": "Please complete: Reviewer signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

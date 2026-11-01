@@ -1,0 +1,175 @@
+{
+  "title": "Employee Expense Reimbursement Claim",
+  "roles": [
+    {
+      "label": "Employee",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Approver",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "finance",
+  "builtinKey": "expense-claim",
+  "version": 1,
+  "fields": [
+    {
+      "id": "656603bc-21ce-468a-8f76-ef8b80c4d998",
+      "type": "sentence",
+      "label": "Employee name",
+      "description": "Please complete: Employee name.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "d0e9a34b-4016-4a48-bd98-1f1a4b92f0eb",
+      "type": "date",
+      "label": "Expense date",
+      "description": "Please complete: Expense date.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "7f25d2cc-25d4-4e78-8646-d100d9349002",
+      "type": "sentence",
+      "label": "Supplier",
+      "description": "Please complete: Supplier.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "f1f307be-462c-4aab-b538-ce8f5b4baa9e",
+      "type": "sentence",
+      "label": "Business purpose",
+      "description": "Please complete: Business purpose.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "b28750c6-0123-4264-9c0f-44086dd39e3d",
+      "type": "word",
+      "label": "Category",
+      "description": "Please complete: Category.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "206b0ee4-526c-4776-b009-d33fc16c5f66",
+      "type": "number",
+      "label": "Amount (AUD)",
+      "description": "Please complete: Amount (AUD).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "f04a25e3-c525-4c16-936f-708dd89e170d",
+      "type": "checkbox",
+      "label": "Receipt attached?",
+      "description": "Please complete: Receipt attached?.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 0
+    },
+    {
+      "id": "4f984772-6197-4390-b2c4-02dd01fde79e",
+      "type": "sentence",
+      "label": "Payment details / reference",
+      "description": "Please complete: Payment details / reference.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "553b80ce-ada7-488f-b65c-d7f9e76b456d",
+      "type": "signature",
+      "label": "Employee signature",
+      "description": "Please complete: Employee signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5961467650168074,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "33eabbe4-ad36-423f-9a69-a1dee04dc958",
+      "type": "number",
+      "label": "Approved amount",
+      "description": "Please complete: Approved amount.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "4fc62c79-b4ab-4a28-b9c5-8841ac2032a8",
+      "type": "sentence",
+      "label": "Decision / notes",
+      "description": "Please complete: Decision / notes.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "09e2ee98-87f1-4c3e-b37c-142f68e85c77",
+      "type": "signature",
+      "label": "Approver signature",
+      "description": "Please complete: Approver signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}
