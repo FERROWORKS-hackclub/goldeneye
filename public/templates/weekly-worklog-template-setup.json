@@ -626,6 +626,48 @@
       "height": 0.024942987457240592,
       "required": true,
       "recipientIndex": 0
+    },
+    {
+      "id": "8b10cd2d-2f7f-42e5-9c2c-e10ad1cf4201",
+      "type": "number",
+      "label": "Emails sent",
+      "description": "Work-related emails you sent during this week.",
+      "page": 4,
+      "x": 0.6740591397849462,
+      "y": 0.21023375142531353,
+      "width": 0.25201612903225806,
+      "height": 0.05226149752945648,
+      "required": false,
+      "recipientIndex": 0,
+      "reportMetric": "emailsSent"
+    },
+    {
+      "id": "8a7a1274-ff9f-4e1d-ae7a-a3c121c1b578",
+      "type": "number",
+      "label": "Tasks completed",
+      "description": "Tasks or work items you completed during this week.",
+      "page": 4,
+      "x": 0.6740591397849462,
+      "y": 0.34682630178639307,
+      "width": 0.25201612903225806,
+      "height": 0.05226149752945648,
+      "required": false,
+      "recipientIndex": 0,
+      "reportMetric": "tasksCompleted"
+    },
+    {
+      "id": "de7fbec6-182e-4d0a-9c83-f4b2e491a167",
+      "type": "number",
+      "label": "Deliverables completed",
+      "description": "Issues resolved, releases shipped, or other completed outcomes.",
+      "page": 4,
+      "x": 0.6740591397849462,
+      "y": 0.4834188521474725,
+      "width": 0.25201612903225806,
+      "height": 0.05226149752945648,
+      "required": false,
+      "recipientIndex": 0,
+      "reportMetric": "deliverablesCompleted"
     }
   ]
 }
