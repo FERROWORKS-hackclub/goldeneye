@@ -3,7 +3,6 @@ import {db} from '../../../../../../lib/server';
 import {currentUser,staff,digest,token} from '../../../../../../lib/ferrosign';
 import {sameOriginRequest} from '../../../../../../lib/ferrosign-validation.mjs';
 
-const permitted=(user:any)=>`${user.role}`;
 export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
  const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});if(!sameOriginRequest(request.headers.get('origin'),request.url))return NextResponse.json({error:'Origin not allowed'},{status:403});
  let body;try{body=await request.json()}catch{return NextResponse.json({error:'Invalid request'},{status:400})}const signers=body.signers;if(!Array.isArray(signers)||!signers.length||signers.length>20||signers.some((r:any)=>typeof r.name!=='string'||!r.name.trim()||r.name.length>120||typeof r.email!=='string'||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)))return NextResponse.json({error:'Enter a valid name and email for every signer.'},{status:400});
