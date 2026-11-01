@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess,signerRolesSchema,storedJson} from '../lib/ferrosign-validation.mjs';
+import {envelopeSchema,staffRole,usableSigningLink,validateAnswers,sameOriginRequest,templateAccess,signerRolesSchema,storedJson,workLogSummary,validWorklogImage} from '../lib/ferrosign-validation.mjs';
 const field={id:'12345678-1234-4234-8234-123456789abc',type:'signature',label:'Signature',page:0,recipientIndex:0,required:true,x:0,y:0,width:.3,height:.1};
 const envelope={title:'Agreement',fields:[field],recipients:[{name:'Test Signer',email:'test@example.com'}]};
 test('staff mutations require the exact request origin including scheme and port',()=>{
@@ -70,4 +70,31 @@ test('legacy JSON text is decoded without losing field or signer role metadata',
  assert.deepEqual(storedJson(JSON.stringify(JSON.stringify(value)),{}),value);
  assert.deepEqual(storedJson(value,{}),value);
  assert.deepEqual(storedJson('bad-json',[]),[]);
+});
+
+const evidence='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jzXcAAAAASUVORK5CYII=';
+const logFields=[{id:'skip',type:'checkbox',day:'Monday',skipDay:true},{id:'minutes',type:'duration',day:'Monday',required:true},{id:'summary',type:'sentence',day:'Monday',required:true},{id:'link',type:'url',day:'Monday',required:true},{id:'image',type:'image',day:'Monday',required:true},{id:'total',type:'total',reportMetric:'weeklyMinutes'}];
+test('skipped work-log days do not require evidence and discard stale values',()=>{
+ const result=validateAnswers(logFields,{skip:'true',minutes:'99999',image:'bad',summary:'stale'});
+ assert.equal(result.error,undefined);assert.equal(result.answers.total,'0 h 0 min');assert.equal(result.answers.minutes,undefined);assert.equal(result.answers.image,undefined);
+});
+test('working days require evidence, safe links and whole recorded minutes',()=>{
+ const input={skip:'false',minutes:'90',summary:'Implemented the settings screen.',link:'https://example.com/lapse',image:evidence,total:'999 h'};
+ assert.ok(validateAnswers(logFields,{}).error);assert.equal(validateAnswers(logFields,input).answers.total,'1 h 30 min');
+ for(const minutes of ['-1','0','1.5','1441'])assert.ok(validateAnswers(logFields,{...input,minutes}).error);
+ for(const link of ['javascript:alert(1)','https://user:password@example.com/','not a URL'])assert.ok(validateAnswers(logFields,{...input,link}).error);
+ assert.ok(validateAnswers(logFields,{...input,image:'data:image/svg+xml;base64,PHN2Zz4='}).error);
+ assert.equal(validWorklogImage(evidence),true);
+});
+test('weekly totals ignore skipped days and cannot be supplied by the signer',()=>{
+ const fields=[...logFields,{id:'skip2',type:'checkbox',day:'Tuesday',skipDay:true},{id:'minutes2',type:'duration',day:'Tuesday',required:true}];
+ const result=validateAnswers(fields,{skip:'false',minutes:'61',summary:'Fixed a bug.',link:'https://example.com',image:evidence,skip2:'true',minutes2:'120',total:'fake'});
+ assert.equal(result.answers.total,'1 h 1 min');assert.equal(workLogSummary(fields,result.answers).skippedDays,1);
+});
+test('drafts may be incomplete but still validate supplied evidence and support requests',()=>{
+ assert.equal(validateAnswers(logFields,{summary:'Draft notes'},{partial:true}).error,undefined);
+ assert.ok(validateAnswers(logFields,{link:'javascript:bad'},{partial:true}).error);
+ const help=[{id:'help',type:'checkbox',reportMetric:'help'},{id:'notes',type:'sentence',reportMetric:'helpDetails'}];
+ assert.ok(validateAnswers(help,{help:'true'}).error);assert.equal(validateAnswers(help,{help:'true',notes:'Please review the API approach.'}).error,undefined);
+ assert.equal(validateAnswers(help,{help:'true'},{partial:true}).error,undefined);
 });
