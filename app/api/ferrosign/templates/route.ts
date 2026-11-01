@@ -39,14 +39,14 @@ async function ensureCompanyFormTemplates(ownerId:string){
   await tx`SELECT pg_advisory_xact_lock(hashtext('ferrosign:company-form-templates:v1'))`;
   for(const key of ['incident-report','purchase-request','donation-receipt','employee-pay-record','leave-request','expense-claim','hazard-assessment','asset-register','contractor-checklist']){
    const path=join(process.cwd(),'public','templates',`${key}.json`),setup=JSON.parse(await readFile(path,'utf8'));
-   const [existing]=await tx`SELECT d.id FROM fw_sign_documents d JOIN LATERAL (SELECT detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true WHERE d.status='draft' AND a.detail->>'builtinKey'=${key} ORDER BY d.created_at DESC LIMIT 1`;
-   if(existing)continue;
+   const [existing]=await tx`SELECT d.id,a.detail FROM fw_sign_documents d JOIN LATERAL (SELECT CASE WHEN jsonb_typeof(detail)='string' THEN (detail #>> '{}')::jsonb ELSE detail END AS detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true WHERE d.status='draft' AND a.detail->>'builtinKey'=${key} ORDER BY d.created_at DESC LIMIT 1`;
+   if(existing){const detail=storedJson(existing.detail,{});if(detail.locked===true)continue;const lockedDetail={...detail,visibility:'staff',signerCount:detail.signerCount||setup.roles.length,roles:detail.roles||setup.roles,accessGroup:detail.accessGroup||setup.accessGroup,locked:true,builtinKey:key,builtinVersion:setup.version};await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${existing.id},${ownerId},'template_updated',${tx.json(lockedDetail)}::jsonb)`;continue;}
    const [retired]=await tx`SELECT 1 FROM fw_sign_audit WHERE event='template_deleted' AND detail->>'builtinKey'=${key} LIMIT 1`;
    if(retired)continue;
    const templateId=id(),pdf=await readFile(join(process.cwd(),'public','templates',`${key}.pdf`));
    const blob=await put(`ferrosign/templates/${templateId}/source.pdf`,new Blob([new Uint8Array(pdf)],{type:'application/pdf'}),{access:'private',contentType:'application/pdf',addRandomSuffix:false});
    await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${setup.title},${blob.pathname},${ownerId},${tx.json(setup.fields)}::jsonb)`;
-   await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${ownerId},'template_saved',${tx.json({visibility:'staff',signerCount:setup.roles.length,roles:setup.roles,accessGroup:setup.accessGroup,locked:false,builtinKey:key,builtinVersion:setup.version})}::jsonb)`;
+   await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${ownerId},'template_saved',${tx.json({visibility:'staff',signerCount:setup.roles.length,roles:setup.roles,accessGroup:setup.accessGroup,locked:true,builtinKey:key,builtinVersion:setup.version})}::jsonb)`;
   }
  });
 }
