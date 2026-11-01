@@ -7,6 +7,10 @@ import nodemailer from 'nodemailer';
 
 const databaseUrl = process.env.DATABASE_URL || 'postgres://build:build@127.0.0.1:5432/build';
 const authUrl = process.env.BETTER_AUTH_URL || 'https://auth.ferroworks.org';
+export const identityTrustedOrigins = [
+  'https://goldeneye.ferroworks.org', 'https://ferroai.ferroworks.org', 'https://printerlab.ferroworks.org', 'https://sign.ferroworks.org',
+  'https://auth.ferroworks.org', 'http://127.0.0.1:3000', 'goldeneye://', 'exp://',
+];
 let pool: Pool | undefined;
 
 function getPool() {
@@ -30,10 +34,7 @@ export const auth = betterAuth({
   user: { changeEmail: { enabled: true, sendChangeEmailConfirmation: async ({ user, newEmail, url }) => sendIdentityEmail(user.email, 'Ferroworks email migration: confirm your work address', url, `Your Ferroworks account is moving from ${user.email} to ${newEmail}. Confirm this change if you requested it. Your address will not change until you confirm this link and verify the new inbox.`) } },
   databaseHooks: { user: { update: { before: async (data) => { if(data.email&&!data.email.toLowerCase().endsWith('@ferroworks.org')) throw new Error('Company accounts must use an @ferroworks.org address.'); return {data}; }, after: async (user) => { await (getPool() as any).query('UPDATE fw_users SET email=$1 WHERE id=$2', [user.email.toLowerCase(), user.id]); } } } },
   emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, user.email.toLowerCase().endsWith('@ferroworks.org') ? 'Verify your new Ferroworks work email' : 'Verify your Ferrowork account', url) },
-  trustedOrigins: [
-    'https://goldeneye.ferroworks.org', 'https://ferroai.ferroworks.org', 'https://printerlab.ferroworks.org', 'https://sign.ferroworks.org',
-    'https://auth.ferroworks.org', 'http://127.0.0.1:3000', 'goldeneye://', 'exp://',
-  ],
+  trustedOrigins: identityTrustedOrigins,
   plugins: [
     admin(), organization(), expo(), jwt(),
     oauthProvider({
