@@ -1,5 +1,6 @@
 export default {
  poweredByHeader:false,
+ outputFileTracingIncludes:{'/api/ferrosign/templates':['./public/templates/weekly-worklog-template.pdf','./public/templates/weekly-worklog-template-setup.json']},
  async rewrites(){return {beforeFiles:[
   {source:'/',has:[{type:'host',value:'ferroai.ferroworks.org'}],destination:'/ferroai'},
   {source:'/',has:[{type:'host',value:'printerlab.ferroworks.org'}],destination:'/printer-lab'}
