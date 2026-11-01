@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../lib/server';
 import { digest } from '../../../../../lib/ferrosign';
-import { usableSigningLink, validateAnswers,storedJson } from '../../../../../lib/ferrosign-validation.mjs';
+import { usableSigningLink, validateAnswers,storedJson,sameOriginRequest } from '../../../../../lib/ferrosign-validation.mjs';
 import { put } from '@vercel/blob';
 import { deliverSigningCopies } from '../../../../../lib/ferrosign-mail';
 import { renderSignedPdf, signedPdf } from '../../../../../lib/ferrosign-pdf';
 export const maxDuration=300;
 
 export async function GET(_:NextRequest,{params}:{params:Promise<{token:string}>}){
- const {token}=await params;const [row]=await db()`SELECT r.id,r.name,r.email,r.signed_at,r.signer_order,r.token_expires_at,d.id AS document_id,d.title,d.fields FROM fw_sign_recipients r JOIN fw_sign_documents d ON d.id=r.document_id WHERE r.token_hash=${digest(token)} AND d.status IN ('sent','completed')`;
+ const {token}=await params;const [row]=await db()`SELECT r.id,r.name,r.email,r.signed_at,r.signer_order,r.token_expires_at,d.id AS document_id,d.title,d.fields,r.answers FROM fw_sign_recipients r JOIN fw_sign_documents d ON d.id=r.document_id WHERE r.token_hash=${digest(token)} AND d.status IN ('sent','completed')`;
  if(row)row.fields=storedJson(row.fields,[]);
  if(!usableSigningLink(row))return NextResponse.json({error:'This signing link is invalid or expired.'},{status:404});
  const fields=Array.isArray(row.fields)?row.fields.filter((field:any)=>field.recipientIndex===row.signer_order-1):[];
- return NextResponse.json({name:row.name,email:row.email,signed:!!row.signed_at,title:row.title,fields,fileUrl:`/api/ferrosign/sign/${encodeURIComponent(token)}/file`},{headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
+ return NextResponse.json({name:row.name,email:row.email,signed:!!row.signed_at,title:row.title,fields,answers:row.signed_at?{}:storedJson(row.answers,{}),fileUrl:`/api/ferrosign/sign/${encodeURIComponent(token)}/file`},{headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
 }
 export async function POST(request:NextRequest,{params}:{params:Promise<{token:string}>}){
  const origin=request.headers.get('origin');try{if(!origin||new URL(origin).origin!==new URL(process.env.FERROSIGN_BASE_URL||'https://sign.ferroworks.org').origin)return NextResponse.json({error:'Request origin not allowed.'},{status:403})}catch{return NextResponse.json({error:'Request origin not allowed.'},{status:403})}
@@ -40,8 +40,22 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{token:s
   const destinations=pending?[row.email]:[...(await tx`SELECT email FROM fw_sign_recipients WHERE document_id=${row.document_id}`).map((r:any)=>r.email),doc.requester];
   for(const to of new Set<string>(destinations.map((email:string)=>email.toLowerCase()))){await tx`INSERT INTO fw_sign_audit(document_id,recipient_id,actor,event,detail) VALUES (${row.document_id},${row.id},${row.email},'email_copy_pending',${tx.json({to,path,title:doc.title,complete:!pending})}::jsonb)`;}
   return {ok:true,documentId:row.document_id};
- });
+ }).catch(error=>{console.error('Signing completion failed',error);return {error:'Could not complete signing. Check your images and try again.',status:500}});
  if('error' in result)return NextResponse.json({error:result.error},{status:result.status});
  const emailDelivered=await deliverSigningCopies(result.documentId);
  return NextResponse.json({ok:true,emailDelivered});
+}
+
+export async function PATCH(request:NextRequest,{params}:{params:Promise<{token:string}>}){
+ if(!sameOriginRequest(request.headers.get('origin'),request.url))return NextResponse.json({error:'Request origin not allowed.'},{status:403});
+ const {token}=await params;let body;try{body=await request.json()}catch{return NextResponse.json({error:'Invalid draft'},{status:400})}
+ const result=await db().begin(async tx=>{
+  const [row]=await tx`SELECT r.id,r.signed_at,r.signer_order,r.token_expires_at,d.fields,d.status FROM fw_sign_recipients r JOIN fw_sign_documents d ON d.id=r.document_id WHERE r.token_hash=${digest(token)} FOR UPDATE OF r,d`;
+  if(!usableSigningLink(row)||row.status!=='sent')return {error:'This signing link is unavailable.',status:404};
+  if(row.signed_at)return {error:'This document has already been signed.',status:409};
+  const fields=storedJson(row.fields,[]).filter((f:any)=>f.recipientIndex===row.signer_order-1);if(!fields.length)return {error:'Document fields are unavailable.',status:503};
+  const validated=validateAnswers(fields,body?.answers,{partial:true});if(validated.error)return {error:validated.error,status:400};
+  await tx`UPDATE fw_sign_recipients SET answers=${tx.json((validated.answers||{}) as Record<string,string>)} WHERE id=${row.id} AND signed_at IS NULL`;return {ok:true};
+ });
+ return 'error' in result?NextResponse.json({error:result.error},{status:result.status}):NextResponse.json({ok:true});
 }
