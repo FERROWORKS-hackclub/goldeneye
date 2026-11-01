@@ -28,3 +28,11 @@ export async function POST(request:Request){
  });
  return NextResponse.json({id:templateId},{status:201});
 }
+export async function DELETE(request:Request){
+ const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
+ if(!sameOriginRequest(request.headers.get('origin'),request.url))return NextResponse.json({error:'Origin not allowed'},{status:403});
+ let body;try{body=await request.json()}catch{return NextResponse.json({error:'Invalid request'},{status:400})}
+ const templateId=String(body.id||'');
+ const result=await db().begin(async tx=>{const [row]=await tx`SELECT d.id,d.created_by,a.detail FROM fw_sign_documents d JOIN fw_sign_audit a ON a.document_id=d.id AND a.event='template_saved' WHERE d.id=${templateId} AND d.status='draft' FOR UPDATE OF d`;if(!row)return false;const detail=storedJson(row.detail,{});if(row.created_by!==user.id&&detail.visibility!=='staff')return false;await tx`UPDATE fw_sign_documents SET status='void',updated_at=now() WHERE id=${templateId}`;await tx`INSERT INTO fw_sign_audit(document_id,actor,event) VALUES (${templateId},${user.id},'template_deleted')`;return true});
+ return result?NextResponse.json({ok:true}):NextResponse.json({error:'Template not found or unavailable'},{status:404});
+}
