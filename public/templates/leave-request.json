@@ -1,0 +1,162 @@
+{
+  "title": "Leave and Absence Request",
+  "roles": [
+    {
+      "label": "Employee",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Manager",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "personal",
+  "builtinKey": "leave-request",
+  "version": 1,
+  "fields": [
+    {
+      "id": "4343252f-3ee6-492c-b16c-847e7d9bee4e",
+      "type": "sentence",
+      "label": "Employee name",
+      "description": "Please complete: Employee name.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a314d240-869b-492a-b582-0bd0ad6f1c6a",
+      "type": "word",
+      "label": "Leave type",
+      "description": "Please complete: Leave type.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a038233e-ad00-40c1-b483-76e199925468",
+      "type": "date",
+      "label": "First day",
+      "description": "Please complete: First day.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a0e8ebcb-8f2f-471d-a54d-82795e096bb5",
+      "type": "date",
+      "label": "Last day",
+      "description": "Please complete: Last day.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "f74bcdb1-9558-49bd-ae64-318f60c608b3",
+      "type": "number",
+      "label": "Hours / days requested",
+      "description": "Please complete: Hours / days requested.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "936ec353-7092-4ba5-8474-a07b1508c7bb",
+      "type": "sentence",
+      "label": "Contact while away (optional)",
+      "description": "Please complete: Contact while away (optional).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": false,
+      "recipientIndex": 0
+    },
+    {
+      "id": "531d49fd-6e32-4e58-b3c1-3b4f9979497f",
+      "type": "sentence",
+      "label": "Handover plan",
+      "description": "Please complete: Handover plan.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "42ba97a3-385c-4b5b-816b-896f62febe24",
+      "type": "signature",
+      "label": "Employee signature",
+      "description": "Please complete: Employee signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "4484c93f-a271-4259-9070-d7e43b5e021a",
+      "type": "word",
+      "label": "Approved / declined",
+      "description": "Please complete: Approved / declined.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "8c3bc180-8134-47cd-8b71-732a0cf4fc26",
+      "type": "sentence",
+      "label": "Manager notes",
+      "description": "Please complete: Manager notes.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "0d4e669f-2d71-466c-939a-04cda9616574",
+      "type": "signature",
+      "label": "Manager signature",
+      "description": "Please complete: Manager signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

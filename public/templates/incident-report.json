@@ -1,0 +1,201 @@
+{
+  "title": "Workplace Incident and Near-Miss Report",
+  "roles": [
+    {
+      "label": "Reporter",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Supervisor review",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "incident",
+  "builtinKey": "incident-report",
+  "version": 1,
+  "fields": [
+    {
+      "id": "fe9f3fb5-fd10-4936-bdaf-ce0030e8955a",
+      "type": "word",
+      "label": "Event type",
+      "description": "Please complete: Event type.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "fe2a442e-9759-43b4-a4da-5179bebea83c",
+      "type": "date",
+      "label": "Date and time",
+      "description": "Please complete: Date and time.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "03904f7a-2db6-4771-837d-e1d367584df9",
+      "type": "sentence",
+      "label": "Work location",
+      "description": "Please complete: Work location.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "f931859b-abb4-496c-b2ca-87ffe6260c7b",
+      "type": "sentence",
+      "label": "People involved",
+      "description": "Please complete: People involved.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "b8255f47-732e-4c01-8cd9-5c3189ffdc9d",
+      "type": "sentence",
+      "label": "Describe what happened",
+      "description": "Please complete: Describe what happened.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "596c53d5-58d0-4e26-bad8-5b8e78b48d3b",
+      "type": "sentence",
+      "label": "Immediate actions taken",
+      "description": "Please complete: Immediate actions taken.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "d29ab534-6d85-43af-8dde-f2c1b87b749f",
+      "type": "sentence",
+      "label": "Witnesses and contact details",
+      "description": "Please complete: Witnesses and contact details.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "e333433f-457f-43a5-9d98-5e1ae7510805",
+      "type": "sentence",
+      "label": "Further action requested",
+      "description": "Please complete: Further action requested.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "213291bb-3e53-48ee-a3bc-a70f3d839a2a",
+      "type": "signature",
+      "label": "Reporter signature",
+      "description": "Please complete: Reporter signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5961467650168074,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "94e23152-93ec-427b-946c-b4c65ef32db8",
+      "type": "word",
+      "label": "Risk rating",
+      "description": "Please complete: Risk rating.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "538c47f2-a30a-43c1-b2ae-9a3624347045",
+      "type": "sentence",
+      "label": "Corrective actions and owner",
+      "description": "Please complete: Corrective actions and owner.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "2ec1c133-6883-4afd-ac55-47de7749b87e",
+      "type": "date",
+      "label": "Due date",
+      "description": "Please complete: Due date.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "588359c5-59aa-4f26-93f5-55f0e5a53ae4",
+      "type": "sentence",
+      "label": "Close-out notes",
+      "description": "Please complete: Close-out notes.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "394cdbe5-cb40-4a38-9a48-26b2d5fe1410",
+      "type": "signature",
+      "label": "Supervisor signature",
+      "description": "Please complete: Supervisor signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

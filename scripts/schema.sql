@@ -8,6 +8,7 @@ ALTER TABLE fw_records ADD CONSTRAINT fw_records_kind_check CHECK (kind IN ('pro
 
 ALTER TABLE fw_users ADD COLUMN IF NOT EXISTS onboarding_completed boolean NOT NULL DEFAULT false;
 ALTER TABLE fw_users ADD COLUMN IF NOT EXISTS invited_at timestamptz;
+ALTER TABLE fw_users ADD COLUMN IF NOT EXISTS job_title text NOT NULL DEFAULT '';
 CREATE TABLE IF NOT EXISTS fw_invitations (
  id uuid PRIMARY KEY,
  token_hash text UNIQUE NOT NULL,

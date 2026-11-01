@@ -33,19 +33,38 @@ async function ensureWeeklyWorklogTemplate(ownerId:string){
  });
 }
 
+async function ensureCompanyFormTemplates(ownerId:string){
+ const sql=db();
+ await sql.begin(async(tx:any)=>{
+  await tx`SELECT pg_advisory_xact_lock(hashtext('ferrosign:company-form-templates:v1'))`;
+  for(const key of ['incident-report','purchase-request','donation-receipt','employee-pay-record','leave-request','expense-claim','hazard-assessment','asset-register','contractor-checklist']){
+   const path=join(process.cwd(),'public','templates',`${key}.json`),setup=JSON.parse(await readFile(path,'utf8'));
+   const [existing]=await tx`SELECT d.id FROM fw_sign_documents d JOIN LATERAL (SELECT detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true WHERE d.status='draft' AND a.detail->>'builtinKey'=${key} ORDER BY d.created_at DESC LIMIT 1`;
+   if(existing)continue;
+   const [retired]=await tx`SELECT 1 FROM fw_sign_audit WHERE event='template_deleted' AND detail->>'builtinKey'=${key} LIMIT 1`;
+   if(retired)continue;
+   const templateId=id(),pdf=await readFile(join(process.cwd(),'public','templates',`${key}.pdf`));
+   const blob=await put(`ferrosign/templates/${templateId}/source.pdf`,new Blob([new Uint8Array(pdf)],{type:'application/pdf'}),{access:'private',contentType:'application/pdf',addRandomSuffix:false});
+   await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${setup.title},${blob.pathname},${ownerId},${tx.json(setup.fields)}::jsonb)`;
+   await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${ownerId},'template_saved',${tx.json({visibility:'staff',signerCount:setup.roles.length,roles:setup.roles,accessGroup:setup.accessGroup,locked:false,builtinKey:key,builtinVersion:setup.version})}::jsonb)`;
+  }
+ });
+}
+
 function validUnlock(token:string,id:string,userId:string){return verifyTemplateUnlockToken(token,id,userId,process.env.BETTER_AUTH_SECRET||'');}
 
 export async function GET(){
  const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
- try{await ensureWeeklyWorklogTemplate(user.id)}catch(error){console.error('Weekly work log template restore failed',error)}
- const templates=await db()`SELECT d.id,d.title,d.fields,d.created_by AS owner_id,a.detail->>'visibility' AS visibility,a.detail->'roles' AS roles,(a.detail->>'signerCount')::int AS signer_count,a.detail->>'locked' AS locked,u.name AS owner FROM fw_sign_documents d JOIN LATERAL (SELECT CASE WHEN jsonb_typeof(detail)='string' THEN (detail #>> '{}')::jsonb ELSE detail END AS detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true JOIN fw_users u ON u.id=d.created_by WHERE d.status='draft' AND (d.created_by=${user.id} OR a.detail->>'visibility'='staff') ORDER BY d.created_at DESC`;
- return NextResponse.json({templates:templates.filter(template=>templateAccess(user,template.owner_id,template.visibility)).map(template=>({...template,fields:storedJson(template.fields,[]),roles:storedJson(template.roles,null),locked:template.locked==='true'||!!lockedTemplateKey(template.title)}))},{headers:{'Cache-Control':'private, no-store'}});
+ try{await ensureWeeklyWorklogTemplate(user.id);await ensureCompanyFormTemplates(user.id)}catch(error){console.error('Built-in FerroSign template restore failed',error)}
+ const templates=await db()`SELECT d.id,d.title,d.fields,d.created_by AS owner_id,a.detail->>'visibility' AS visibility,a.detail->'roles' AS roles,a.detail->>'accessGroup' AS access_group,(a.detail->>'signerCount')::int AS signer_count,a.detail->>'locked' AS locked,u.name AS owner FROM fw_sign_documents d JOIN LATERAL (SELECT CASE WHEN jsonb_typeof(detail)='string' THEN (detail #>> '{}')::jsonb ELSE detail END AS detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true JOIN fw_users u ON u.id=d.created_by WHERE d.status='draft' AND (d.created_by=${user.id} OR a.detail->>'visibility'='staff') ORDER BY d.created_at DESC`;
+ return NextResponse.json({templates:templates.filter(template=>templateAccess(user,template.owner_id,template.visibility)).map(template=>({...template,fields:storedJson(template.fields,[]),roles:storedJson(template.roles,null),access_group:template.access_group,locked:template.locked==='true'||!!lockedTemplateKey(template.title)}))},{headers:{'Cache-Control':'private, no-store'}});
 }
 export async function POST(request:Request){
  const user=await currentUser();if(!user||!staff(user.role))return NextResponse.json({error:'Staff access required'},{status:403});
  if(!sameOriginRequest(request.headers.get('origin'),request.url))return NextResponse.json({error:'Origin not allowed'},{status:403});
- const form=await request.formData(),file=form.get('file'),visibility=form.get('visibility');
+ const form=await request.formData(),file=form.get('file'),visibility=form.get('visibility'),accessGroup=String(form.get('accessGroup')||'');
  if(!['private','staff'].includes(String(visibility)))return NextResponse.json({error:'Choose template visibility'},{status:400});
+ if(accessGroup&&!['incident','finance','personal'].includes(accessGroup))return NextResponse.json({error:'Invalid record access group'},{status:400});
  if(!(file instanceof File)||file.type!=='application/pdf'||file.size>4*1024*1024)return NextResponse.json({error:'Upload a PDF under 4 MB'},{status:400});
  let input;try{input={title:String(form.get('title')||''),fields:JSON.parse(String(form.get('fields'))),recipients:JSON.parse(String(form.get('recipients')))}}catch{return NextResponse.json({error:'Invalid template'},{status:400})}
  const parsed=envelopeSchema.safeParse(input);if(!parsed.success)return NextResponse.json({error:parsed.error.issues[0]?.message||'Invalid template'},{status:400});
@@ -56,7 +75,7 @@ export async function POST(request:Request){
  await db().begin(async tx=>{
   await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${parsed.data.title},${blob.pathname},${user.id},${tx.json(parsed.data.fields)}::jsonb)`;
   const builtinKey=lockedTemplateKey(parsed.data.title);
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_saved',${tx.json({visibility:String(visibility),signerCount:parsed.data.recipients.length,roles,locked:!!builtinKey,...(builtinKey?{builtinKey}:{})})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_saved',${tx.json({visibility:String(visibility),signerCount:parsed.data.recipients.length,roles,accessGroup:accessGroup||undefined,locked:!!builtinKey,...(builtinKey?{builtinKey}:{})})}::jsonb)`;
  });
  return NextResponse.json({id:templateId},{status:201});
 }
@@ -78,7 +97,7 @@ export async function PATCH(request:Request){
   if(locked&&!validUnlock(unlockToken,templateId,user.id))return {error:'Unlock this template first.',status:403};
   const key=detail.builtinKey||lockedTemplateKey(row.title,detail);
   await tx`UPDATE fw_sign_documents SET title=${parsed.data.title},fields=${tx.json(parsed.data.fields)}::jsonb,updated_at=now() WHERE id=${templateId}`;
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_updated',${tx.json({visibility:detail.visibility||'private',signerCount:roles.length,roles,locked,...(key?{builtinKey:key}:{}),...(detail.builtinVersion?{builtinVersion:detail.builtinVersion}:{})})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_updated',${tx.json({visibility:detail.visibility||'private',signerCount:roles.length,roles,accessGroup:detail.accessGroup,locked,...(key?{builtinKey:key}:{}),...(detail.builtinVersion?{builtinVersion:detail.builtinVersion}:{})})}::jsonb)`;
   return {ok:true};
  });
  return 'error'in result?NextResponse.json({error:result.error},{status:result.status}):NextResponse.json({ok:true});

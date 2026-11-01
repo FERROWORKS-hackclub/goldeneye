@@ -1,0 +1,299 @@
+{
+  "title": "Employee Pay Record and Acknowledgment (Two-Part)",
+  "roles": [
+    {
+      "label": "Payroll officer",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Employee",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "finance",
+  "builtinKey": "employee-pay-record",
+  "version": 1,
+  "fields": [
+    {
+      "id": "f5ed86ca-4a5e-4a3d-ab87-5bf20d25dc4f",
+      "type": "sentence",
+      "label": "Employer name and ABN",
+      "description": "Please complete: Employer name and ABN.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.16853745738754466,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "d08c9c0d-e789-4547-a11b-0601c267012f",
+      "type": "sentence",
+      "label": "Employee name",
+      "description": "Please complete: Employee name.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.22198862084120252,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "77812259-439a-4b0e-aa5b-0d3851b1bade",
+      "type": "sentence",
+      "label": "Pay period start / end",
+      "description": "Please complete: Pay period start / end.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.2754397842948604,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "778f9186-1d52-4ed2-afc0-3cd26219b53d",
+      "type": "date",
+      "label": "Date paid",
+      "description": "Please complete: Date paid.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.3288909477485182,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "674bf0e1-1e0e-4210-8728-c704119096f0",
+      "type": "word",
+      "label": "Employment basis",
+      "description": "Please complete: Employment basis.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.38234211120217604,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "63292d01-0e9c-4ef9-927d-07f42590b13f",
+      "type": "sentence",
+      "label": "Hourly rate / hours / amount (if hourly)",
+      "description": "Please complete: Hourly rate / hours / amount (if hourly).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.4357932746558339,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "e12a5b46-cb9d-42c2-a4b8-8aa8412d70ac",
+      "type": "sentence",
+      "label": "Annual salary rate (if salaried; otherwise enter N/A)",
+      "description": "Please complete: Annual salary rate (if salaried; otherwise enter N/A).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.48924443810949175,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "e5a97f03-a7a4-4530-9bed-1572cc6175f8",
+      "type": "sentence",
+      "label": "Overtime, loading, allowance or bonus",
+      "description": "Please complete: Overtime, loading, allowance or bonus.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5426956015631496,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.5426956015631496,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "487ed5a1-4e18-4f89-9631-ec0043bb92da",
+      "type": "number",
+      "label": "Gross pay",
+      "description": "Please complete: Gross pay.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.5961467650168074,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.5961467650168074,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "6f4e565f-f435-4448-99ff-459c4d870153",
+      "type": "sentence",
+      "label": "Deductions (name and amount)",
+      "description": "Please complete: Deductions (name and amount).",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.6495979284704653,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.6495979284704653,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "a703f7cf-c623-4db1-9c78-759a15c1fd0a",
+      "type": "number",
+      "label": "Net pay",
+      "description": "Please complete: Net pay.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.7030490919241231,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.7030490919241231,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "fdb97762-5c90-40fe-87b1-b7ad826c097c",
+      "type": "sentence",
+      "label": "Super amount and fund",
+      "description": "Please complete: Super amount and fund.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.756500255377781,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.756500255377781,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "fd882e85-a9d1-481e-bc7d-a09e78ef3398",
+      "type": "signature",
+      "label": "Employee acknowledgment / signature",
+      "description": "Please complete: Employee acknowledgment / signature.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.8099514188314387,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1,
+      "mirror": {
+        "page": 1,
+        "x": 0.0671952694530305,
+        "y": 0.8099514188314387,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    },
+    {
+      "id": "0489eae3-441f-4013-8d6f-012f1fa1de61",
+      "type": "signature",
+      "label": "Payroll officer signature",
+      "description": "Please complete: Payroll officer signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.8634025822850966,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0,
+      "mirror": {
+        "page": 0,
+        "x": 0.0671952694530305,
+        "y": 0.8634025822850966,
+        "width": 0.8651390942077678,
+        "height": 0.03444630533680172
+      }
+    }
+  ]
+}

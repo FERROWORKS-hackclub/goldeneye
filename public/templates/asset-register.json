@@ -1,0 +1,188 @@
+{
+  "title": "Equipment Issue, Return and Condition Record",
+  "roles": [
+    {
+      "label": "Custodian",
+      "role": "staff",
+      "defaultCurrentUser": true
+    },
+    {
+      "label": "Recipient",
+      "role": "staff"
+    }
+  ],
+  "accessGroup": "personal",
+  "builtinKey": "asset-register",
+  "version": 1,
+  "fields": [
+    {
+      "id": "304d68af-6c7c-4daa-8f31-4ee3d6743b2c",
+      "type": "word",
+      "label": "Asset / serial number",
+      "description": "Please complete: Asset / serial number.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "e21e36c1-3206-4ca1-9cd1-fed81463b7c5",
+      "type": "sentence",
+      "label": "Description",
+      "description": "Please complete: Description.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "3245ae09-7fcf-48d8-bf57-6b770e405a74",
+      "type": "sentence",
+      "label": "Condition at issue",
+      "description": "Please complete: Condition at issue.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "49e72714-8abe-4edd-9e2f-40da32a32e14",
+      "type": "sentence",
+      "label": "Accessories issued",
+      "description": "Please complete: Accessories issued.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "3e9f6198-f625-48c3-9aea-675598c1a36d",
+      "type": "date",
+      "label": "Issue date",
+      "description": "Please complete: Issue date.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "bf2ab0ef-9f91-4ce2-b865-5ba5b37ca07e",
+      "type": "date",
+      "label": "Expected return",
+      "description": "Please complete: Expected return.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "c1d88450-9110-40e2-a226-448f210b9d4e",
+      "type": "signature",
+      "label": "Recipient acknowledgment",
+      "description": "Please complete: Recipient acknowledgment.",
+      "page": 0,
+      "x": 0.0671952694530305,
+      "y": 0.48924443810949175,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    },
+    {
+      "id": "7b122ada-b504-487d-b461-09219723d500",
+      "type": "sentence",
+      "label": "Condition on return",
+      "description": "Please complete: Condition on return.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.16853745738754466,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "2d7519e3-f514-4227-b97e-7c9a180e8c4e",
+      "type": "sentence",
+      "label": "Damage / missing items",
+      "description": "Please complete: Damage / missing items.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.22198862084120252,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "43bb343f-5c45-4c0e-b98f-86695de59f0f",
+      "type": "date",
+      "label": "Return date",
+      "description": "Please complete: Return date.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.2754397842948604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "826ba6ba-874d-4772-bb80-16d652d903ae",
+      "type": "sentence",
+      "label": "Custodian close-out",
+      "description": "Please complete: Custodian close-out.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.3288909477485182,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "a0735f90-babc-49e0-a9df-2298c0f2733b",
+      "type": "signature",
+      "label": "Custodian signature",
+      "description": "Please complete: Custodian signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.38234211120217604,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 0
+    },
+    {
+      "id": "5908eef4-25be-43ef-8a6f-90ca7fffe1a3",
+      "type": "signature",
+      "label": "Recipient signature",
+      "description": "Please complete: Recipient signature.",
+      "page": 1,
+      "x": 0.0671952694530305,
+      "y": 0.4357932746558339,
+      "width": 0.8651390942077678,
+      "height": 0.03444630533680172,
+      "required": true,
+      "recipientIndex": 1
+    }
+  ]
+}

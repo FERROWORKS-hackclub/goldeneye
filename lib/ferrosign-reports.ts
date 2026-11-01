@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { get, put } from '@vercel/blob';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { db } from './server';
 import { storedJson, workLogSummary } from './ferrosign-validation.mjs';
 
@@ -79,24 +82,28 @@ export async function compileBiweeklyReport(start:string,end:string){
 }
 function addDays(date:string,days:number){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10)}
 
-export async function buildBusinessCardsPdf(people:{name:string;email:string}[]){
- const pdf=await PDFDocument.create(),font=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
+export async function buildBusinessCardsPdf(people:{name:string;email:string;title?:string}[]){
+ const pdf=await PDFDocument.create();pdf.registerFontkit(fontkit);
+ const font=await pdf.embedFont(await readFile(join(process.cwd(),'public','fonts','Roboto-Regular.ttf'))),bold=await pdf.embedFont(await readFile(join(process.cwd(),'public','fonts','Roboto-Bold.ttf')));
+ const cardBlack=rgb(.04,.05,.05),cardMuted=rgb(.22,.24,.23);
  const pageW=595.28,pageH=841.89,cardW=255.12,cardH=155.91,gapX=28.35,gapY=5.67,startX=(pageW-(cardW*2+gapX))/2,startY=pageH-9;
  people.forEach((person,index)=>{
   if(index%10===0&&index>0){}const pageIndex=Math.floor(index/10),col=(index%10)%2,row=Math.floor((index%10)/2);let page=pdf.getPages()[pageIndex];if(!page)page=pdf.addPage([pageW,pageH]);
   const x=startX+col*(cardW+gapX),top=startY-row*(cardH+gapY),y=top-cardH;
-  page.drawRectangle({x,y,width:cardW,height:cardH,color:rgb(1,1,1),borderColor:line,borderWidth:.8});
-  page.drawRectangle({x,y,width:8,height:cardH,color:ink});
+  page.drawRectangle({x,y,width:cardW,height:cardH,color:rgb(1,1,1),borderColor:cardBlack,borderWidth:1});
+  page.drawRectangle({x,y,width:8,height:cardH,color:cardBlack});
   // Compact outline mark inspired by the existing Ferrowork wordmark.
   const cx=x+29,cy=y+cardH-29,r=12;for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6,b=Math.PI/3*(i+1)-Math.PI/6;page.drawLine({start:{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)},end:{x:cx+r*Math.cos(b),y:cy+r*Math.sin(b)},thickness:2,color:orange})}
-  page.drawText('FERROWORKS',{x:x+49,y:y+cardH-32,size:10,font:bold,color:ink});
+  page.drawText('FERROWORKS',{x:x+49,y:y+cardH-32,size:10,font:bold,color:cardBlack});
   const name=asText(person.name||'Ferroworks staff');let nameSize=17;while(nameSize>10&&bold.widthOfTextAtSize(name,nameSize)>cardW-34)nameSize--;
-  page.drawText(name,{x:x+20,y:y+cardH-76,size:nameSize,font:bold,color:ink,maxWidth:cardW-34});
-  page.drawLine({start:{x:x+20,y:y+58},end:{x:x+cardW-20,y:y+58},thickness:.7,color:line});
-  let emailSize=9;const email=asText(person.email);while(emailSize>7&&font.widthOfTextAtSize(email,emailSize)>cardW-40)emailSize--;
-  page.drawText(email,{x:x+20,y:y+39,size:emailSize,font,color:muted,maxWidth:cardW-38});
-  page.drawText('ferroworks.org',{x:x+20,y:y+21,size:8,font:font,color:green});
-  for(const [mx,my,dx,dy] of [[x-3,y-3,-1,0],[x+cardW+3,y-3,1,0],[x-3,y+cardH+3,-1,0],[x+cardW+3,y+cardH+3,1,0]])page.drawLine({start:{x:mx,y:my},end:{x:mx+dx*6,y:my},thickness:.5,color:muted});
+  page.drawText(name,{x:x+20,y:y+cardH-70,size:nameSize,font:bold,color:cardBlack,maxWidth:cardW-34});
+  const title=asText(person.title||'Ferroworks Staff');let titleSize=10;while(titleSize>7&&font.widthOfTextAtSize(title,titleSize)>cardW-40)titleSize--;
+  page.drawText(title,{x:x+20,y:y+cardH-89,size:titleSize,font,color:cardMuted,maxWidth:cardW-38});
+  page.drawLine({start:{x:x+20,y:y+58},end:{x:x+cardW-20,y:y+58},thickness:.8,color:cardBlack});
+  let emailSize=8.5;const email=asText(person.email).toUpperCase();while(emailSize>6&&font.widthOfTextAtSize(email,emailSize)>cardW-40)emailSize--;
+  page.drawText(email,{x:x+20,y:y+39,size:emailSize,font,color:cardBlack,maxWidth:cardW-38});
+  page.drawText('FERROWORKS.ORG',{x:x+20,y:y+21,size:8,font:font,color:cardBlack});
+  for(const [mx,my,dx,dy] of [[x-3,y-3,-1,0],[x+cardW+3,y-3,1,0],[x-3,y+cardH+3,-1,0],[x+cardW+3,y+cardH+3,1,0]])page.drawLine({start:{x:mx,y:my},end:{x:mx+dx*6,y:my},thickness:.5,color:cardMuted});
  });
  if(!people.length){const page=pdf.addPage([pageW,pageH]);page.drawText('No active non-viewer staff accounts were found.',{x:40,y:pageH-60,size:13,font:await pdf.embedFont(StandardFonts.Helvetica),color:muted})}
  return pdf.save();
