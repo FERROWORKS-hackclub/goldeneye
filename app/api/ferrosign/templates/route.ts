@@ -15,8 +15,12 @@ async function ensureWeeklyWorklogTemplate(ownerId:string){
  const sql=db();
  await sql.begin(async(tx:any)=>{
   await tx`SELECT pg_advisory_xact_lock(hashtext('ferrosign:weekly-worklog-template'))`;
-  const [active]=await tx`SELECT d.id,a.detail FROM fw_sign_documents d JOIN LATERAL (SELECT detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true WHERE d.status='draft' AND lower(trim(d.title))=lower(${WEEKLY_WORKLOG_TEMPLATE_TITLE}) ORDER BY d.created_at DESC LIMIT 1 FOR UPDATE OF d`;
-  if(active){const detail=storedJson(active.detail,{});if(detail.builtinKey==='weekly-worklog'&&detail.visibility==='staff'&&detail.locked===true)return;await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${active.id},${ownerId},'template_updated',${tx.json({visibility:'staff',signerCount:weeklyRoles.length,roles:weeklyRoles,locked:true,builtinKey:'weekly-worklog'})}::jsonb)`;return;}
+  const [active]=await tx`SELECT d.id,d.source_blob,d.fields,a.detail FROM fw_sign_documents d JOIN LATERAL (SELECT detail FROM fw_sign_audit WHERE document_id=d.id AND event IN ('template_saved','template_updated') ORDER BY id DESC LIMIT 1) a ON true WHERE d.status='draft' AND lower(trim(d.title))=lower(${WEEKLY_WORKLOG_TEMPLATE_TITLE}) ORDER BY d.created_at DESC LIMIT 1 FOR UPDATE OF d`;
+  if(active){const detail=storedJson(active.detail,{}),oldFields=storedJson(active.fields,[]),metrics=(weeklySetup as any).fields.filter((f:any)=>['emailsSent','tasksCompleted','deliverablesCompleted'].includes(f.reportMetric)),existingKeys=new Set(oldFields.map((f:any)=>f.reportMetric).filter((key:string)=>metrics.some((f:any)=>f.reportMetric===key)));
+   let sourceBlob=active.source_blob,nextFields=oldFields;
+   if(Number(detail.builtinVersion)<2&&metrics.some((f:any)=>!existingKeys.has(f.reportMetric))){const templatePdf=await readFile(join(process.cwd(),'public','templates','weekly-worklog-template.pdf')),blob=await put(`ferrosign/templates/${active.id}/source-v2.pdf`,new Blob([new Uint8Array(templatePdf)],{type:'application/pdf'}),{access:'private',contentType:'application/pdf',addRandomSuffix:false});sourceBlob=blob.pathname;nextFields=[...oldFields,...metrics.filter((f:any)=>!existingKeys.has(f.reportMetric))];await tx`UPDATE fw_sign_documents SET source_blob=${sourceBlob},fields=${tx.json(nextFields)}::jsonb,updated_at=now() WHERE id=${active.id}`;}
+   if(detail.builtinKey==='weekly-worklog'&&detail.visibility==='staff'&&detail.locked===true&&Number(detail.builtinVersion)>=2&&sourceBlob===active.source_blob)return;
+   await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${active.id},${ownerId},'template_updated',${tx.json({visibility:'staff',signerCount:weeklyRoles.length,roles:weeklyRoles,locked:true,builtinKey:'weekly-worklog',builtinVersion:2})}::jsonb)`;return;}
   const [deleted]=await tx`SELECT 1 FROM fw_sign_audit WHERE event='template_deleted' AND detail->>'builtinKey'='weekly-worklog' LIMIT 1`;
   const [renamed]=await tx`SELECT 1 FROM fw_sign_audit WHERE event IN ('template_saved','template_updated') AND detail->>'builtinKey'='weekly-worklog' LIMIT 1`;
   if(deleted||renamed)return;
@@ -25,7 +29,7 @@ async function ensureWeeklyWorklogTemplate(ownerId:string){
   const fields=(weeklySetup as any).fields;
   const recipients=weeklyRoles.map((role,index)=>({name:role.label,email:`slot${index+1}@example.invalid`}));
   await tx`INSERT INTO fw_sign_documents(id,title,source_blob,created_by,fields) VALUES (${templateId},${WEEKLY_WORKLOG_TEMPLATE_TITLE},${blob.pathname},${ownerId},${tx.json(fields)}::jsonb)`;
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${ownerId},'template_saved',${tx.json({visibility:'staff',signerCount:recipients.length,roles:weeklyRoles,locked:true,builtinKey:'weekly-worklog'})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${ownerId},'template_saved',${tx.json({visibility:'staff',signerCount:recipients.length,roles:weeklyRoles,locked:true,builtinKey:'weekly-worklog',builtinVersion:2})}::jsonb)`;
  });
 }
 
@@ -74,7 +78,7 @@ export async function PATCH(request:Request){
   if(locked&&!validUnlock(unlockToken,templateId,user.id))return {error:'Unlock this template first.',status:403};
   const key=detail.builtinKey||lockedTemplateKey(row.title,detail);
   await tx`UPDATE fw_sign_documents SET title=${parsed.data.title},fields=${tx.json(parsed.data.fields)}::jsonb,updated_at=now() WHERE id=${templateId}`;
-  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_updated',${tx.json({visibility:detail.visibility||'private',signerCount:roles.length,roles,locked,...(key?{builtinKey:key}:{})})}::jsonb)`;
+  await tx`INSERT INTO fw_sign_audit(document_id,actor,event,detail) VALUES (${templateId},${user.id},'template_updated',${tx.json({visibility:detail.visibility||'private',signerCount:roles.length,roles,locked,...(key?{builtinKey:key}:{}),...(detail.builtinVersion?{builtinVersion:detail.builtinVersion}:{})})}::jsonb)`;
   return {ok:true};
  });
  return 'error'in result?NextResponse.json({error:result.error},{status:result.status}):NextResponse.json({ok:true});

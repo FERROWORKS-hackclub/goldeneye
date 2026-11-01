@@ -17,3 +17,8 @@ CREATE TABLE IF NOT EXISTS fw_sign_audit (
  recipient_id uuid REFERENCES fw_sign_recipients(id) ON DELETE SET NULL, actor text NOT NULL, event text NOT NULL,
  detail jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS fw_ferrosign_biweekly_reports (
+ id uuid PRIMARY KEY, period_start date NOT NULL, period_end date NOT NULL,
+ blob_path text NOT NULL, source_count integer NOT NULL DEFAULT 0, created_at timestamptz NOT NULL DEFAULT now(),
+ UNIQUE(period_start,period_end)
+);
