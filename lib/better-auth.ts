@@ -27,7 +27,9 @@ export const auth = betterAuth({
       : 'This password reset link expires in one hour and can only be used once. After saving your password, return to Goldeneye to sign in.';
     await sendIdentityEmail(user.email, migrationNotice ? 'Action required: set your Ferrowork password' : 'Reset your Ferrowork password', url, note);
   } },
-  emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, 'Verify your Ferrowork account', url) },
+  user: { changeEmail: { enabled: true, sendChangeEmailConfirmation: async ({ user, newEmail, url }) => sendIdentityEmail(user.email, 'Ferroworks email migration: confirm your work address', url, `Your Ferroworks account is moving from ${user.email} to ${newEmail}. Confirm this change if you requested it. Your address will not change until you confirm this link and verify the new inbox.`) } },
+  databaseHooks: { user: { update: { before: async (data) => { if(data.email&&!data.email.toLowerCase().endsWith('@ferroworks.org')) throw new Error('Company accounts must use an @ferroworks.org address.'); return {data}; }, after: async (user) => { await (getPool() as any).query('UPDATE fw_users SET email=$1 WHERE id=$2', [user.email.toLowerCase(), user.id]); } } } },
+  emailVerification: { sendVerificationEmail: async ({ user, url }) => sendIdentityEmail(user.email, user.email.toLowerCase().endsWith('@ferroworks.org') ? 'Verify your new Ferroworks work email' : 'Verify your Ferrowork account', url) },
   trustedOrigins: [
     'https://goldeneye.ferroworks.org', 'https://ferroai.ferroworks.org', 'https://printerlab.ferroworks.org', 'https://sign.ferroworks.org',
     'https://auth.ferroworks.org', 'http://127.0.0.1:3000', 'goldeneye://', 'exp://',

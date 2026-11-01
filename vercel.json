@@ -1,1 +1,1 @@
-{"framework":"nextjs","crons":[{"path":"/api/cron/ferrosign-weekly-reminders","schedule":"0 23 * * 0"}]}
+{"framework":"nextjs","crons":[{"path":"/api/cron/ferrosign-weekly-reminders","schedule":"15 0 * * *"}]}
