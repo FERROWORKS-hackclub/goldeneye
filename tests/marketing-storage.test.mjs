@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import postgres from 'postgres';
-import { applyStoredCampaignOperation,storedAudience } from '../lib/marketing-storage.mjs';
+import { applyStoredCampaignOperation,storedAudience,unsubscribeStoredContact } from '../lib/marketing-storage.mjs';
 import { newEmailBlock } from '../lib/marketing-validation.mjs';
 
 test('database: concurrent edits merge distinct fields, conflict on shared fields, preserve suppression and remain idempotent',{skip:process.env.MARKETING_DATABASE_TESTS!=='1'},async()=>{
@@ -42,6 +42,17 @@ test('database: concurrent edits merge distinct fields, conflict on shared field
   assert.equal(audience.find(x=>x.email==='old-unsubscribed@example.test').suppressed,true);
   assert.equal(audience.find(x=>x.email==='pending@example.test').status,'pending');
   assert.equal(audience.find(x=>x.email==='custom@example.test').status,'custom');
+  await sql`DELETE FROM fw_marketing_suppressions WHERE email='subscribed@example.test'`;
+  await sql`UPDATE fw_marketing_contacts SET confirmation_nonce=${randomUUID()},confirmation_expires_at=now()+interval '1 day' WHERE id=${contact}`;
+  const delivery=randomUUID();
+  await sql`INSERT INTO fw_marketing_deliveries(id,campaign_id,contact_id,email,kind) VALUES(${delivery},${id},${contact},'subscribed@example.test','campaign')`;
+  await unsubscribeStoredContact(sql,contact);
+  await unsubscribeStoredContact(sql,contact);
+  const [left]=await sql`SELECT status,confirmation_nonce,confirmation_expires_at FROM fw_marketing_contacts WHERE id=${contact}`;
+  assert.equal(left.status,'unsubscribed');assert.equal(left.confirmation_nonce,null);assert.equal(left.confirmation_expires_at,null);
+  const [job]=await sql`SELECT status FROM fw_marketing_deliveries WHERE id=${delivery}`;assert.equal(job.status,'skipped');
+  const afterLeaving=await storedAudience(sql,[list1,list2],['subscribed@example.test']);assert.equal(afterLeaving.find(x=>x.email==='subscribed@example.test').suppressed,true);
+  await assert.rejects(unsubscribeStoredContact(sql,randomUUID()),e=>e.status===404);
  }finally{
   if(sql)await sql.end();
   // This exact schema is generated above and never references live application tables.

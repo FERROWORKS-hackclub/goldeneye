@@ -5,7 +5,7 @@ import { auth,configured } from './auth';
 import { db } from './server';
 import { marketingStaff,operationSchema,operationKey,applyCampaignOperation,browserDetails,surveyAnswersSchema } from './marketing-validation.mjs';
 import { marketingToken,verifyMarketingToken } from './marketing-tokens.mjs';
-import { applyStoredCampaignOperation } from './marketing-storage.mjs';
+import { applyStoredCampaignOperation,unsubscribeStoredContact } from './marketing-storage.mjs';
 
 export const newsletterListId='44b7ce99-d432-4b72-8e90-9c943157f1ac';
 export const marketingOrigin=()=> (process.env.MARKETING_BASE_URL||'https://goldeneye.ferroworks.org').replace(/\/$/,'');
@@ -42,14 +42,7 @@ export const unsubscribeUrl=(id:string)=>`${marketingOrigin()}/unsubscribe?token
 export function unsubscribeContactId(token:string){const id=verifyMarketingToken('unsubscribe',token,marketingSecret());return id&&z.uuid().safeParse(id).success?id:null;}
 export async function unsubscribeContact(token:string){
  const id=unsubscribeContactId(token);if(!id)throw new MarketingError('This unsubscribe link is not valid. Contact newsletter@ferroworks.org for help.',400);
- await db().begin(async tx=>{
-  const [contact]=await tx`SELECT email FROM fw_marketing_contacts WHERE id=${id} FOR UPDATE`;
-  if(!contact)throw new MarketingError('This mailing-list record no longer exists.',404);
-  await tx`UPDATE fw_marketing_contacts SET status='unsubscribed',unsubscribed_at=now(),confirmation_nonce=NULL,confirmation_expires_at=NULL,updated_at=now() WHERE id=${id}`;
-  await tx`INSERT INTO fw_marketing_suppressions(email) VALUES(${contact.email}) ON CONFLICT DO NOTHING`;
-  await tx`UPDATE fw_marketing_deliveries SET status='skipped',error='Recipient unsubscribed' WHERE contact_id=${id} AND kind='campaign' AND status='pending'`;
-  await auditMarketing(tx,null,'contact.unsubscribed',id);
- });
+ try{await unsubscribeStoredContact(db(),id);}catch(error:any){if(error.status)throw new MarketingError(error.message,error.status);throw error;}
 }
 export async function confirmSubscription(token:string){
  const value=verifyMarketingToken('confirmation',token,marketingSecret());if(!value)throw new MarketingError('This confirmation link is invalid. Please sign up again.');
