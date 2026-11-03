@@ -6,6 +6,10 @@ export async function loginToFerrowork() {
   await signIn('ferrowork', { redirectTo: '/' });
 }
 
+export async function loginToMarketing() {
+  await signIn('ferrowork', { redirectTo: '/marketing' });
+}
+
 export async function loginToFerroSign() {
   await signIn('ferrowork', { redirectTo: '/?ferrosign_sso=complete' });
 }

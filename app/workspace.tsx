@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {Eye, Activity, ArrowDownLeft, ArrowUpRight, Boxes, Check, ChevronRight, Download, ExternalLink, FolderKanban, FolderPlus, Hexagon, LayoutDashboard, Loader2, LogOut, Menu, Pencil, Plus, Search, Trash2, Users, Wallet, X} from 'lucide-react';
+import {Eye, Activity, ArrowDownLeft, ArrowUpRight, Boxes, Check, ChevronRight, Download, ExternalLink, FolderKanban, FolderPlus, Hexagon, LayoutDashboard, Loader2, LogOut, Mail, Menu, Pencil, Plus, Search, Trash2, Users, Wallet, X} from 'lucide-react';
 import {can} from '../lib/policy.mjs';
 import {loginToFerrowork} from './actions';
 import Invitations from './invitations';
@@ -135,7 +135,7 @@ export default function Workspace({configured, signedIn, loginUrl='/', logoutUrl
     {mobile && <button className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setMobile(false)}/>}
     <aside className={mobile ? 'open' : ''}>
       <button className="brand goldeneye-brand" onClick={() => go('overview')}><Eye size={26}/>GOLDENEYE</button>
-      <nav aria-label="Main navigation">{navigation.filter(([id]) => permitted(id)).map(([id, label, Icon]) => <button className={`${page === id ? 'active' : ''} ${id === 'users' ? 'nav-divider' : ''}`} aria-current={page === id ? 'page' : undefined} key={id} onClick={() => go(id)}><Icon size={19}/><span>{label}</span>{id === 'projects' && <small>{state.projects.length}</small>}</button>)}<a className="tool-nav" href="https://printerlab.ferroworks.org"><Boxes size={19}/><span>Printer Lab</span><ArrowUpRight size={14}/></a><a className="tool-nav" href="https://ferroai.ferroworks.org"><Eye size={19}/><span>FerroAI</span><ArrowUpRight size={14}/></a></nav>
+      <nav aria-label="Main navigation">{navigation.filter(([id]) => permitted(id)).map(([id, label, Icon]) => <button className={`${page === id ? 'active' : ''} ${id === 'users' ? 'nav-divider' : ''}`} aria-current={page === id ? 'page' : undefined} key={id} onClick={() => go(id)}><Icon size={19}/><span>{label}</span>{id === 'projects' && <small>{state.projects.length}</small>}</button>)}{can(role,'marketing')&&<a className="tool-nav" href="/marketing"><Mail size={19}/><span>Marketing</span><ArrowUpRight size={14}/></a>}<a className="tool-nav" href="https://printerlab.ferroworks.org"><Boxes size={19}/><span>Printer Lab</span><ArrowUpRight size={14}/></a><a className="tool-nav" href="https://ferroai.ferroworks.org"><Eye size={19}/><span>FerroAI</span><ArrowUpRight size={14}/></a></nav>
       <div className="profile"><span className="avatar">{initials(state.me.name)}</span><div><b>{state.me.name}</b><small>{role}</small></div><a href={logoutUrl} title="Sign out" aria-label="Sign out"><LogOut size={17}/></a></div>
     </aside>
     <main className="main page-enter" key={page} ref={content}>

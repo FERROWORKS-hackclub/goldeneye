@@ -1,1 +1,17 @@
-{"framework":"nextjs","crons":[{"path":"/api/cron/ferrosign-weekly-reminders","schedule":"15 0 * * *"},{"path":"/api/cron/ferrosign-biweekly-reports","schedule":"30 0 * * 1"}]}
+{
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/ferrosign-weekly-reminders",
+      "schedule": "15 0 * * *"
+    },
+    {
+      "path": "/api/cron/ferrosign-biweekly-reports",
+      "schedule": "30 0 * * 1"
+    },
+    {
+      "path": "/api/cron/marketing-delivery",
+      "schedule": "45 0 * * *"
+    }
+  ]
+}

@@ -34,3 +34,21 @@ Use a non-production test account first. Never place a real password, reset URL,
 Run cross-tenant tests with two organizations. Try a valid session with a missing organization id, a guessed foreign organization id, forged role/body fields, and SQL queries without transaction-local `app.organization_id`. `ge_saas_records` is protected by forced PostgreSQL row-level security in addition to application membership checks.
 
 Every internal API except signup acceptance and Identity protocol routes requires an authenticated session and active `fw_users` membership. Tenant APIs additionally check Better Auth organization membership. Passwords are handled over HTTPS, hashed by Better Auth and not returned in JSON; browser DevTools can still display the user's own submitted request body. TLS protects it in transit.
+
+## Marketing and public research
+
+| Method | Path | Access / purpose |
+| --- | --- | --- |
+| GET | `/api/marketing` | Active staff; dashboard, campaigns, lists, contacts, research or individual campaign via `resource` query |
+| POST | `/api/marketing` | Active staff + same origin; campaign edits, presence, contact/list management, audience review, send/test/pause/resume, SMTP check, settings |
+| GET | `/api/marketing/export?resource=contacts` or `research` | Active staff; streamed CSV export |
+| POST | `/api/marketing/worker` | Active staff + same origin, or signed worker token; bounded queue processing |
+| POST | `/api/marketing/unsubscribe` | Purpose-bound signed unsubscribe token; also accepts email-client one-click POST |
+| POST | `/api/marketing/confirm` | Expiring signed confirmation token, matched to stored nonce |
+| POST / OPTIONS | `/api/public/newsletter` | Public, exact-origin CORS, validation, consent and rate limiting |
+| POST / OPTIONS | `/api/public/research` | Public, exact-origin CORS, validation, consent and rate limiting |
+| GET | `/api/cron/marketing-delivery` | Bearer `CRON_SECRET`; queue recovery |
+| GET | `/marketing`, `/marketing/reports` | Active staff only |
+| GET | `/unsubscribe`, `/newsletter/confirm` | Public signed-link confirmation screens; GET requests never mutate subscription state |
+
+See MARKETING-README.md for delivery, collaboration, metadata and testing behaviour.
