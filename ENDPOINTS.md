@@ -41,7 +41,7 @@ Every internal API except signup acceptance and Identity protocol routes require
 | --- | --- | --- |
 | GET | `/api/marketing` | Active staff; dashboard, campaigns, lists, contacts, research or individual campaign via `resource` query |
 | POST | `/api/marketing` | Active staff + same origin; campaign edits, presence, contact/list management, audience review, send/test/pause/resume, SMTP check, settings |
-| GET | `/api/marketing/export?resource=contacts` or `research` | Active staff; streamed CSV export |
+| GET | `/api/marketing/export?kind=contacts` or `research` | Active staff; streamed CSV export |
 | POST | `/api/marketing/worker` | Active staff + same origin, or signed worker token; bounded queue processing |
 | POST | `/api/marketing/unsubscribe` | Purpose-bound signed unsubscribe token; also accepts email-client one-click POST |
 | POST | `/api/marketing/confirm` | Expiring signed confirmation token, matched to stored nonce |
